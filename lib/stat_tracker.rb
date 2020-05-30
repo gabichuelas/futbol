@@ -178,8 +178,31 @@ class StatTracker
   end
 
   def most_accurate_team(season)
+    season_game_ids = games_by_season(season).map do |game|
+      game.game_id
+    end
 
+    season_games = game_teams.find_all do |game|
+    season_game_ids.include?(game.game_id)
+    end
+
+    season_games_by_team = season_games.group_by do |game|
+    game.team_id
+    end
+
+    season_team_ids = [season_games_by_team.keys].flatten
+
+    season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
+
+
+
+    require 'pry'; binding.pry
+
+    # team_shots = season_games_by_team.each do |team, game|
+    #   team_shots[team] += game.
+    # end
   end
+
 
   # least_accurate_team(season)
 
