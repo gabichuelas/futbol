@@ -177,9 +177,9 @@ class StatTracker
     coach_losses.max_by { |coach| losses_by_coach[coach] }
   end
 
-  # def most_accurate_team(season)
-  #
-  # end
+  def most_accurate_team(season)
+
+  end
 
   # least_accurate_team(season)
 
