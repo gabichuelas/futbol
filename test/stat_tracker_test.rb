@@ -292,10 +292,12 @@ class StatTrackerTest < Minitest::Test
   def test_games_by_id_array
     game_id_array = @stat_tracker.game_ids_by("6", "WIN")
     assert_equal 3, game_id_array.count
+    assert_instance_of Array, game_id_array
   end
 
   def test_games_won_by_team_id
     game_id_array = @stat_tracker.game_ids_by("6", "WIN")
+
     @stat_tracker.games_by(game_id_array).each do |game|
       assert_instance_of Game, game
     end
