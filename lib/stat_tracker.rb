@@ -76,6 +76,36 @@ class StatTracker
     end
   end
 
+  def find_all_games_total_score
+    all_goals = 0
+    games.each do |game|
+      all_goals += game.away_goals.to_i + game.home_goals.to_i
+    end
+    all_goals
+  end
+
+  def average_goals_per_game
+    percentage = find_all_games_total_score / games.count.to_f
+    percentage.round(2)
+  end
+
+  def average_goals_by_season
+    all_games_by_season_id = @games.group_by do |game|
+      game.season
+    end
+
+    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
+      total_goals = 0
+      games.each do |game|
+        total_goals += game.away_goals.to_f + game.home_goals.to_f
+      end
+
+      games_by_season[season] = (total_goals / games.count.to_f).round(2)
+      # require 'pry';binding.pry
+      games_by_season
+    end
+  end
+
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
@@ -360,20 +390,6 @@ class StatTracker
     end.info
   end
 
-  def most_goals_scored(team_id)
-    game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals.to_i if game_team.team_id == team_id
-      scores
-    end.max
-  end
-
-  def fewest_goals_scored(team_id)
-    game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals.to_i if game_team.team_id == team_id
-      scores
-    end.min
-  end
-
   def best_season(team_id)
     season = games_won_by_season(team_id).max_by do |season, games|
       games.count
@@ -388,11 +404,43 @@ class StatTracker
     season[0]
   end
 
+  def average_win_percentage(team_id)
+    games_won_by(team_id).count.fdiv(total_games_by(team_id)).round(2)
+  end
+
+  def most_goals_scored(team_id)
+    game_teams.reduce([]) do |scores, game_team|
+      scores << game_team.goals.to_i if game_team.team_id == team_id
+      scores
+    end.max
+  end
+
+  def fewest_goals_scored(team_id)
+    game_teams.reduce([]) do |scores, game_team|
+      scores << game_team.goals.to_i if game_team.team_id == team_id
+      scores
+    end.min
+  end
+
+  def favorite_opponent
+  end
+
+  def rival
+  end
+
   # Helper Methods----------------------
 
+  def game_teams_by(team_id)
+    # returns matching GameTeams
+    @game_teams.find_all do |game_team|
+      game_team.team_id == team_id
+    end
+  end
+
   def game_ids_by(team_id, result)
-    from_game_teams = @game_teams.find_all do |game_team|
-      game_team.team_id == team_id && game_team.result == result
+    # returns array of game_ids
+    from_game_teams = game_teams_by(team_id).find_all do |game_team|
+      game_team.result == result
     end
     from_game_teams.map do |game_team|
       game_team.game_id
@@ -400,9 +448,14 @@ class StatTracker
   end
 
   def games_by(game_ids_array)
+    # cross references array of game_ids with Games
     @games.find_all do |game|
       game_ids_array.include?(game.game_id)
     end
+  end
+
+  def total_games_by(team_id)
+    game_teams_by(team_id).count
   end
 
   def games_won_by(team_id)
