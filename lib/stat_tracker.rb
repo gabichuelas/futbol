@@ -65,6 +65,17 @@ class StatTracker
     percentage.round(2)
   end
 
+  def count_of_games_by_season
+    all_games_by_season_id = @games.group_by do |game|
+      game.season
+    end
+
+    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
+      games_by_season[season] = games.count
+      games_by_season
+    end
+  end
+
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
@@ -79,9 +90,9 @@ class StatTracker
   def scores_by_team
     game_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals]
+        team_scores[game.team_id] = [game.goals.to_i]
       else
-        team_scores[game.team_id] << game.goals
+        team_scores[game.team_id] << game.goals.to_i
       end
       team_scores
     end
@@ -118,9 +129,9 @@ class StatTracker
 
     sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals]
+        team_scores[game.team_id] = [game.goals.to_i]
       else
-        team_scores[game.team_id] << game.goals
+        team_scores[game.team_id] << game.goals.to_i
       end
       team_scores
     end
@@ -144,9 +155,9 @@ class StatTracker
 
     sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals]
+        team_scores[game.team_id] = [game.goals.to_i]
       else
-        team_scores[game.team_id] << game.goals
+        team_scores[game.team_id] << game.goals.to_i
       end
       team_scores
     end
@@ -170,9 +181,9 @@ class StatTracker
 
     sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals]
+        team_scores[game.team_id] = [game.goals.to_i]
       else
-        team_scores[game.team_id] << game.goals
+        team_scores[game.team_id] << game.goals.to_i
       end
       team_scores
     end
@@ -196,9 +207,9 @@ class StatTracker
 
     sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals]
+        team_scores[game.team_id] = [game.goals.to_i]
       else
-        team_scores[game.team_id] << game.goals
+        team_scores[game.team_id] << game.goals.to_i
       end
       team_scores
     end
@@ -317,14 +328,14 @@ class StatTracker
 
   def most_goals_scored(team_id)
     game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals if game_team.team_id == team_id
+      scores << game_team.goals.to_i if game_team.team_id == team_id
       scores
     end.max
   end
 
   def fewest_goals_scored(team_id)
     game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals if game_team.team_id == team_id
+      scores << game_team.goals.to_i if game_team.team_id == team_id
       scores
     end.min
   end
