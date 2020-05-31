@@ -74,9 +74,9 @@ class StatTrackerTest < Minitest::Test
 
   def test_find_tied_games
     locations = {
-      games: './fixtures/game_statistics_games_fixture.csv',
+      games: './fixtures/games_gamestats_fixture.csv',
       teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/game_teams_game_statistics_fixture.csv'
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 
@@ -86,15 +86,27 @@ class StatTrackerTest < Minitest::Test
 
   def test_percentage_ties
     locations = {
-      games: './fixtures/game_statistics_games_fixture.csv',
+      games: './fixtures/games_gamestats_fixture.csv',
       teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/game_teams_game_statistics_fixture.csv'
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
     assert_equal 0.04, stat_tracker.percentage_ties
   end
 
+  def test_count_games_by_season
+    locations = {
+      games: './fixtures/games_gamestats_fixture_2.csv',
+      teams: './fixtures/teams_fixture.csv',
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
 
+    game_nums_per_season = {"20122013" => 5,
+                          "20162017" => 4,
+                          "20132014" => 6}
+    assert_equal game_nums_per_season, stat_tracker.count_of_games_by_season
+  end
 
   # LEAGUE STATISTICS
 
@@ -127,8 +139,8 @@ class StatTrackerTest < Minitest::Test
   def test_it_can_identify_highest_scoring_visitor
     locations = {
       games: './fixtures/games_fixture.csv',
-      teams: './fixtures/teams_league_stats_fixture.csv',
-      game_teams: './fixtures/game_teams_league_stats_fixture.csv'
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 
@@ -138,8 +150,8 @@ class StatTrackerTest < Minitest::Test
   def test_it_can_identify_highest_scoring_home_team
     locations = {
       games: './fixtures/games_fixture.csv',
-      teams: './fixtures/teams_league_stats_fixture.csv',
-      game_teams: './fixtures/game_teams_league_stats_fixture.csv'
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 
@@ -149,8 +161,8 @@ class StatTrackerTest < Minitest::Test
   def test_it_can_identify_lowest_scoring_visitor
     locations = {
       games: './fixtures/games_fixture.csv',
-      teams: './fixtures/teams_league_stats_fixture.csv',
-      game_teams: './fixtures/game_teams_league_stats_fixture.csv'
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 
@@ -160,8 +172,8 @@ class StatTrackerTest < Minitest::Test
   def test_it_can_identify_lowest_scoring_home_team
     locations = {
       games: './fixtures/games_fixture.csv',
-      teams: './fixtures/teams_league_stats_fixture.csv',
-      game_teams: './fixtures/game_teams_league_stats_fixture.csv'
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 
@@ -179,7 +191,7 @@ class StatTrackerTest < Minitest::Test
   def test_winningest_coach
     game_path = './fixtures/games_fixture.csv'
     team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/large_game_teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
 
     locations = {
     games: game_path,
@@ -195,7 +207,7 @@ class StatTrackerTest < Minitest::Test
   def test_worst_coach
     game_path = './fixtures/games_fixture.csv'
     team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/large_game_teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
 
     locations = {
     games: game_path,
