@@ -76,6 +76,19 @@ class StatTracker
     end
   end
 
+  def find_all_games_total_score
+    all_goals = 0
+    games.each do |game|
+      all_goals += game.away_goals.to_i + game.home_goals.to_i
+    end
+    all_goals
+  end
+
+  def average_goals_per_game
+    percentage = find_all_games_total_score / games.count.to_f
+    percentage.round(2)
+  end
+
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
