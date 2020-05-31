@@ -96,9 +96,9 @@ class StatTrackerTest < Minitest::Test
 
   def test_count_games_by_season
     locations = {
-      games: './fixtures/games_gamestats_fixture.csv',
+      games: './fixtures/games_gamestats_fixture_2.csv',
       teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/games_gamestats_fixture_2.csv'
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
     }
     stat_tracker = StatTracker.from_csv(locations)
 

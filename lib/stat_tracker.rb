@@ -65,6 +65,17 @@ class StatTracker
     percentage.round(2)
   end
 
+  def count_of_games_by_season
+    all_games_by_season_id = @games.group_by do |game|
+      game.season
+    end
+
+    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
+      games_by_season[season] = games.count
+      games_by_season
+    end
+  end
+
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
