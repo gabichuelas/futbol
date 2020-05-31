@@ -419,12 +419,8 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    
+
     assert_equal "3", stat_tracker.most_losses_against("6")
   end
-
-
-
-
 
 end
