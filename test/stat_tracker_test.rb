@@ -169,6 +169,24 @@ class StatTrackerTest < Minitest::Test
     assert_equal "Houston Dynamo", @stat_tracker.worst_offense
   end
 
+  def test_it_can_find_all_visiting_game_teams ###
+    locations = {
+      games: './fixtures/games_fixture.csv',
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+
+    stat_tracker.visiting_game_teams.each do |game_team|
+      assert_equal "away", game_team.hoa
+    end
+    assert_equal 17, stat_tracker.visiting_game_teams.count
+  end
+
+  def test_it_can_find_all_home_game_teams ###
+    skip
+  end
+
   def test_it_can_identify_highest_scoring_visitor
     locations = {
       games: './fixtures/games_fixture.csv',
