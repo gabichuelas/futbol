@@ -284,6 +284,35 @@ class StatTrackerTest < Minitest::Test
     # spec harness expected results
   end
 
+  def test_average_win_percentage_by_team
+    # skip
+    # Average win percentage of all games for a team; float
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal 0.57, stat_tracker.average_win_percentage("17")
+  end
+
+  def test_can_get_favorite_opponent
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal "Houston Dynamo", stat_tracker.favorite_opponent("6")
+  end
+
+  def test_rival_by_team
+    # name of opponent that has the highest win percentage
+    # against the given team
+  end
+
   # Helpers
 
   def test_game_ids_by_team_and_result
@@ -322,9 +351,7 @@ class StatTrackerTest < Minitest::Test
     assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
   end
 
-  def test_average_win_percentage_by_team
-    # skip
-    # Average win percentage of all games for a team; float
+  def test_can_find_losing_opponents_for_given_team
     locations = {
       games: './fixtures/games_teamstats_fixture.csv',
       teams: './fixtures/teams_teamstats_fixture.csv',
@@ -332,17 +359,39 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal 0.57, stat_tracker.average_win_percentage("17")
+
+    losers = stat_tracker.find_losing_opponents("6")
+    losers.all? do |loser|
+      assert_equal "LOSS", loser.result
+    end
   end
 
-  def test_favorite_opponent_by_team
-    # Name of opponent that has the lowest win percentage
-    # against given team; String
+  def test_can_group_losers_of_games_with_given_team
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_instance_of Array, stat_tracker.gameteams_by_loser_for("6").values[0]
+    assert_equal true, stat_tracker.gameteams_by_loser_for("6").keys.include?("3")
   end
 
-  def test_rival_by_team
-    # name of opponent that has the highest win percentage
-    # against the given team
+  def test_can_find_team_with_most_losses_against_given_team
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    
+    assert_equal "3", stat_tracker.most_losses_against("6")
   end
+
+
+
+
 
 end
