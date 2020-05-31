@@ -150,6 +150,16 @@ class StatTracker
     find_team_by_id(lowest_avg_score.first).team_name
   end
 
+  def visiting_game_teams
+    @game_teams.find_all do |game_team|
+      game_team.hoa == "away"
+    end
+  end
+
+  def home_game_teams
+
+  end
+
   def highest_scoring_visitor # reconsider local variable names in this method
     # and how to better set up average_scores_by_team method to be able to be
     # resued by multiple methods and take an argument of varying subsets of teams
