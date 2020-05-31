@@ -302,8 +302,9 @@ class StatTrackerTest < Minitest::Test
 
   def test_worst_season_by_team_id_expanded
     skip
+    # THIS TEST IS BROKEN SOMEHOW
     # this is the only test that uses full csv, and
-    # it's noticeably slower.
+    # it's a little noticeably slower.
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -311,7 +312,7 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "20142015", stat_tracker.worst_season("6")
+    assert_equal "20152016", stat_tracker.worst_season("6")
   end
 
   # Helpers
@@ -324,10 +325,12 @@ class StatTrackerTest < Minitest::Test
   def test_games_by_id_array
     game_id_array = @stat_tracker.game_ids_by("6", "WIN")
     assert_equal 3, game_id_array.count
+    assert_instance_of Array, game_id_array
   end
 
   def test_games_won_by_team_id
     game_id_array = @stat_tracker.game_ids_by("6", "WIN")
+
     @stat_tracker.games_by(game_id_array).each do |game|
       assert_instance_of Game, game
     end
@@ -348,6 +351,29 @@ class StatTrackerTest < Minitest::Test
   def test_games_lost_by_season_per_team
     assert_instance_of Hash, @stat_tracker.games_lost_by_season("3")
     assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
+  end
+
+  def test_average_win_percentage_by_team
+    # skip
+    # Average win percentage of all games for a team; float
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal 0.57, stat_tracker.average_win_percentage("17")
+  end
+
+  def test_favorite_opponent_by_team
+    # Name of opponent that has the lowest win percentage
+    # against given team; String
+  end
+
+  def test_rival_by_team
+    # name of opponent that has the highest win percentage
+    # against the given team
   end
 
 end
