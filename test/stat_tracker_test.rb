@@ -317,4 +317,18 @@ class StatTrackerTest < Minitest::Test
     assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
   end
 
+  def test_average_win_percentage_by_team
+    # Average win percentage of all games for a team; float
+  end
+
+  def test_favorite_opponent_by_team
+    # Name of opponent that has the lowest win percentage
+    # against given team; String
+  end
+
+  def test_rival_by_team
+    # name of opponent that has the highest win percentage
+    # against the given team
+  end
+
 end

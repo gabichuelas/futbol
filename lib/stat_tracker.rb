@@ -303,6 +303,23 @@ class StatTracker
     end.info
   end
 
+  def best_season(team_id)
+    season = games_won_by_season(team_id).max_by do |season, games|
+      games.count
+    end
+    season[0]
+  end
+
+  def worst_season(team_id)
+    season = games_lost_by_season(team_id).max_by do |season, games|
+      games.count
+    end
+    season[0]
+  end
+
+  def average_win_percentage
+  end
+
   def most_goals_scored(team_id)
     game_teams.reduce([]) do |scores, game_team|
       scores << game_team.goals.to_i if game_team.team_id == team_id
@@ -317,19 +334,11 @@ class StatTracker
     end.min
   end
 
-  def best_season(team_id)
-    season = games_won_by_season(team_id).max_by do |season, games|
-      games.count
-    end
-    season[0]
+  def favorite_opponent
   end
 
-  def worst_season(team_id)
-    season = games_lost_by_season(team_id).max_by do |season, games|
-      games.count
-    end
-    season[0]
-  end
+  def rival
+  end 
 
   # Helper Methods----------------------
 
