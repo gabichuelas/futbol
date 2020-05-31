@@ -182,9 +182,9 @@ class StatTrackerTest < Minitest::Test
 
   # SEASON STATISTICS
 
-  def test_it_can_find_games_by_season
+  def test_it_can_find_season_games
   assert_instance_of Array, @stat_tracker.games_by_season("20122013")
-  assert_equal 5, @stat_tracker.games_by_season("20122013").count
+  assert_equal 5, @stat_tracker.season_games("20122013").count
   end
 
 
@@ -205,17 +205,17 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_coach
-    game_path = './fixtures/games_fixture.csv'
-    team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-
-    locations = {
-    games: game_path,
-    teams: team_path,
-    game_teams: game_teams_path
-    }
-
-    stat_tracker = StatTracker.from_csv(locations)
+    # game_path = './fixtures/games_fixture.csv'
+    # team_path = './fixtures/teams_fixture.csv'
+    # game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+    #
+    # locations = {
+    # games: game_path,
+    # teams: team_path,
+    # game_teams: game_teams_path
+    # }
+    #
+    # stat_tracker = StatTracker.from_csv(locations)
 
     # Name of the Coach with the worst win percentage for the season	String
     assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")

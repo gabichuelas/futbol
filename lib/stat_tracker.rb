@@ -70,9 +70,9 @@ class StatTracker
       game.season
     end
 
-    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
-      games_by_season[season] = games.count
-      games_by_season
+    all_games_by_season_id.reduce({}) do |season_games, (season, games)|
+      season_games[season] = games.count
+      season_games
     end
   end
 
@@ -227,23 +227,23 @@ class StatTracker
   end
 
   # SEASON STATISTICS
-  def games_by_season(season)
+  def season_games(season)
     games.find_all { |game| game.season == season }
   end
 
   def winningest_coach(season)
     #season_games_by_id returns an array of just season game ids
-    season_game_ids = games_by_season(season).map do |game|
+    season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
     #then find all games in game_teams from the above season
-    season_games = game_teams.find_all do |game|
+    season_game_teams = game_teams.find_all do |game|
     season_game_ids.include?(game.game_id)
     end
 
     # filter season games by wins
-    wins = season_games.find_all do |game|
+    wins = season_game_teams.find_all do |game|
     game.result == "WIN"
     end
 
@@ -262,7 +262,7 @@ class StatTracker
   end
 
   def worst_coach(season)
-    season_game_ids = games_by_season(season).map do |game|
+    season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
@@ -286,7 +286,7 @@ class StatTracker
   end
 
   def most_accurate_team(season)
-    season_game_ids = games_by_season(season).map do |game|
+    season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
@@ -294,15 +294,49 @@ class StatTracker
     season_game_ids.include?(game.game_id)
     end
 
-    season_games_by_team = season_games.group_by do |game|
-    game.team_id
+    # season_games_by_team = season_games.group_by do |game|
+    # game.team_id
+    # end
+    #
+    # season_team_ids = [season_games_by_team.keys].flatten
+    #
+    # season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
+    #
+    # season_teams_by_id = season_teams.group_by do |team|
+    #   team.team_id
+    # end
+
+    season_shots_by_team = season_games.inject(Hash.new(0)) do |season_team_shots, game|
+      season_team_shots[game.team_id] += game.shots.to_i
+      season_team_shots
     end
 
-    season_team_ids = [season_games_by_team.keys].flatten
+    season_goals_by_team = season_games.inject(Hash.new(0)) do |season_team_goals, game|
+      season_team_goals[game.team_id] += game.goals.to_i
+      season_team_goals
+    end
 
-    season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
+    season_team_accuracy = {}
+    season_goals_by_team.each do |team_id, total_goals|
+      total_goals.each do |variable|
+
+      end
+
+    endround(2)
 
 
+    require 'pry'; binding.pry
+
+    #season team ids reduce/inject with team names and coaches?
+
+    # sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
+    #   if team_scores[game.team_id].nil?
+    #     team_scores[game.team_id] = [game.goals.to_i]
+    #   else
+    #     team_scores[game.team_id] << game.goals.to_i
+    #   end
+    #   team_scores
+    # end
 
     require 'pry'; binding.pry
 
