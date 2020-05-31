@@ -169,7 +169,7 @@ class StatTrackerTest < Minitest::Test
     assert_equal "Houston Dynamo", @stat_tracker.worst_offense
   end
 
-  def test_it_can_find_all_visiting_game_teams ###
+  def test_it_can_find_home_and_away_game_teams ###
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -177,10 +177,17 @@ class StatTrackerTest < Minitest::Test
     }
     stat_tracker = StatTracker.from_csv(locations)
 
-    stat_tracker.visiting_game_teams.each do |game_team|
+    stat_tracker.find_game_teams("away").each do |game_team|
       assert_equal "away", game_team.hoa
     end
-    assert_equal 17, stat_tracker.visiting_game_teams.count
+
+    stat_tracker.find_game_teams("home").each do |game_team|
+      assert_equal "home", game_team.hoa
+    end
+
+    assert_equal 17, stat_tracker.find_game_teams("away").count && stat_tracker.find_game_teams("home").count
+    # is it better for this line to be split up into two separate assertions
+    # or for it to be on one line but past the 80char limit?
   end
 
   def test_it_can_find_all_home_game_teams ###
