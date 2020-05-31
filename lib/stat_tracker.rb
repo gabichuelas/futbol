@@ -318,6 +318,7 @@ class StatTracker
   end
 
   def average_win_percentage
+    
   end
 
   def most_goals_scored(team_id)
@@ -338,7 +339,7 @@ class StatTracker
   end
 
   def rival
-  end 
+  end
 
   # Helper Methods----------------------
 

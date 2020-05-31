@@ -268,9 +268,9 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_season_by_team_id_expanded
-    skip
+    # skip
     # this is the only test that uses full csv, and
-    # it's noticeably slower.
+    # it's a little noticeably slower.
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -278,7 +278,7 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "20142015", stat_tracker.worst_season("6")
+    assert_equal "20152016", stat_tracker.worst_season("6")
   end
 
   # Helpers
@@ -319,6 +319,14 @@ class StatTrackerTest < Minitest::Test
 
   def test_average_win_percentage_by_team
     # Average win percentage of all games for a team; float
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fiixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal 0.57, stat_tracker.average_win_percentage("17")
   end
 
   def test_favorite_opponent_by_team
