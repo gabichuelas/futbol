@@ -128,6 +128,19 @@ class StatTrackerTest < Minitest::Test
     assert_equal 4.47, stat_tracker.average_goals_per_game
   end
 
+  def test_it_can_get_average_goals_by_season
+    locations = {
+      games: './fixtures/games_gamestats_fixture_2.csv',
+      teams: './fixtures/teams_fixture.csv',
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+    expected = { "20122013" => 4.40,
+              "20162017" => 4.75,
+              "20132014" => 4.33}
+    assert_equal expected, stat_tracker.average_goals_by_season
+  end
+
   # LEAGUE STATISTICS
 
   def test_it_can_count_teams
