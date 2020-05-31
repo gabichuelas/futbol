@@ -247,8 +247,8 @@ class StatTrackerTest < Minitest::Test
   def test_can_get_team_info_hash
     result = @stat_tracker.team_info("1")
     assert_instance_of Hash, result
-    assert_equal "1", result[:team_id]
-    assert_equal "ATL", result[:abbreviation]
+    assert_equal "1", result["team_id"]
+    assert_equal "ATL", result["abbreviation"]
   end
 
   def test_most_goals_scored_for_given_team
