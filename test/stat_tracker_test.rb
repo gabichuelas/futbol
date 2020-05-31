@@ -269,7 +269,7 @@ class StatTrackerTest < Minitest::Test
 
   def test_worst_season_by_team_id_expanded
     skip
-    # THIS TEST IS BROKEN SOMEHOW
+    # WORST_SEASON MIGHT NEED TO BE FIXED. COME BACK TO THIS.
     # this is the only test that uses full csv, and
     # it's a little noticeably slower.
     locations = {
@@ -279,7 +279,9 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "20152016", stat_tracker.worst_season("6")
+    assert_equal "20142015", stat_tracker.worst_season("6")
+    # using full csv, assertion should be "20142015" according to
+    # spec harness expected results
   end
 
   # Helpers
