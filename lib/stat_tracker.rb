@@ -89,6 +89,23 @@ class StatTracker
     percentage.round(2)
   end
 
+  def average_goals_by_season
+    all_games_by_season_id = @games.group_by do |game|
+      game.season
+    end
+
+    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
+      total_goals = 0
+      games.each do |game|
+        total_goals += game.away_goals.to_f + game.home_goals.to_f
+      end
+
+      games_by_season[season] = (total_goals / games.count.to_f).round(2)
+      # require 'pry';binding.pry
+      games_by_season
+    end
+  end
+
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
