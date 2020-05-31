@@ -94,7 +94,19 @@ class StatTrackerTest < Minitest::Test
     assert_equal 0.04, stat_tracker.percentage_ties
   end
 
+  def test_count_games_by_season
+    locations = {
+      games: './fixtures/games_gamestats_fixture.csv',
+      teams: './fixtures/teams_fixture.csv',
+      game_teams: './fixtures/games_gamestats_fixture_2.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
 
+    game_nums_per_season = {"20122013" => 5,
+                          "20162017" => 4,
+                          "20132014" => 6}
+    assert_equal game_nums_per_season, stat_tracker.count_of_games_by_season
+  end
 
   # LEAGUE STATISTICS
 
