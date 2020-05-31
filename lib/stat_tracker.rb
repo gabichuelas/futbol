@@ -39,7 +39,7 @@ class StatTracker
   end
 
   def percentage_home_wins
-    percentage = find_home_wins.count.fdiv(game_teams.count / 2) * 100
+    percentage = find_home_wins.count.fdiv(game_teams.count / 2)
     percentage.round(2)
   end
 
@@ -50,7 +50,18 @@ class StatTracker
   end
 
   def percentage_visitor_wins
-    percentage = find_visitor_wins.count.fdiv(game_teams.count / 2) * 100
+    percentage = find_visitor_wins.count.fdiv(game_teams.count / 2)
+    percentage.round(2)
+  end
+
+  def find_tied_games
+    games.find_all do |game|
+      game.away_goals == game.home_goals
+    end
+  end
+
+  def percentage_ties
+    percentage = find_tied_games.count.fdiv(games.count)
     percentage.round(2)
   end
 
@@ -85,37 +96,123 @@ class StatTracker
   end
 
   def best_offense
-    highest_avg_score = average_scores_by_team.max_by do |team, avg_score|
+    highest_avg_score = average_scores_by_team.max_by do |_team, avg_score|
       avg_score
     end
     find_team_by_id(highest_avg_score.first).team_name
   end
 
   def worst_offense
-    lowest_avg_score = average_scores_by_team.min_by do |team, avg_score|
+    lowest_avg_score = average_scores_by_team.min_by do |_team, avg_score|
       avg_score
     end
     find_team_by_id(lowest_avg_score.first).team_name
   end
 
-  def highest_scoring_visitor
-    # identify all objects identified as away games in game_teams
-    # amongst the list of away games, group objects by team
-    # for each group, identify average number of goals
-    # identify team w highest average
-    # return team name
+  def highest_scoring_visitor # reconsider local variable names in this method
+    # and how to better set up average_scores_by_team method to be able to be
+    # resued by multiple methods and take an argument of varying subsets of teams
+    away_teams = @game_teams.find_all do |game_team|
+      game_team.hoa == "away"
+    end
+
+    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
+      if team_scores[game.team_id].nil?
+        team_scores[game.team_id] = [game.goals]
+      else
+        team_scores[game.team_id] << game.goals
+      end
+      team_scores
+    end
+
+    avgs_by_team = {}
+    sorted_away_teams.each do |visiting_team_id, scores_array|
+      avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
+    end
+
+    highest_scoring_visitor_id = avgs_by_team.max_by do |_visiting_team_id, avg_score|
+      avg_score
+    end.first
+
+    find_team_by_id(highest_scoring_visitor_id).team_name
   end
 
   def highest_scoring_home_team
-    # same as above but w home games instead of away games
+    home_teams = @game_teams.find_all do |game_team|
+      game_team.hoa == "home"
+    end
+
+    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
+      if team_scores[game.team_id].nil?
+        team_scores[game.team_id] = [game.goals]
+      else
+        team_scores[game.team_id] << game.goals
+      end
+      team_scores
+    end
+
+    avgs_by_team = {}
+    sorted_home_teams.each do |home_team_id, scores_array|
+      avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
+    end
+
+    highest_scoring_home_id = avgs_by_team.max_by do |_visiting_team_id, avg_score|
+      avg_score
+    end.first
+
+    find_team_by_id(highest_scoring_home_id).team_name
   end
 
   def lowest_scoring_visitor
-    # same as highest_scoring_visitor but find team w lowest average
+    away_teams = @game_teams.find_all do |game_team|
+      game_team.hoa == "away"
+    end
+
+    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
+      if team_scores[game.team_id].nil?
+        team_scores[game.team_id] = [game.goals]
+      else
+        team_scores[game.team_id] << game.goals
+      end
+      team_scores
+    end
+
+    avgs_by_team = {}
+    sorted_away_teams.each do |visiting_team_id, scores_array|
+      avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
+    end
+
+    lowest_scoring_visitor_id = avgs_by_team.min_by do |_visiting_team_id, avg_score|
+      avg_score
+    end.first
+
+    find_team_by_id(lowest_scoring_visitor_id).team_name
   end
 
   def lowest_scoring_home_team
-    # same as above but w home games
+    home_teams = @game_teams.find_all do |game_team|
+      game_team.hoa == "home"
+    end
+
+    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
+      if team_scores[game.team_id].nil?
+        team_scores[game.team_id] = [game.goals]
+      else
+        team_scores[game.team_id] << game.goals
+      end
+      team_scores
+    end
+
+    avgs_by_team = {}
+    sorted_home_teams.each do |home_team_id, scores_array|
+      avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
+    end
+
+    lowest_scoring_home_id = avgs_by_team.min_by do |_visiting_team_id, avg_score|
+      avg_score
+    end.first
+
+    find_team_by_id(lowest_scoring_home_id).team_name
   end
 
   # SEASON STATISTICS
@@ -233,35 +330,56 @@ class StatTracker
   end
 
   def best_season(team_id)
-    # Create array of game_team objects with matching team_id and WINs
-    # (this could be a GameTeamCollection find_by method!!
-    # maybe split up the matching by team_id and matching by result)
-    game_teams_won = game_teams.find_all do |game_team|
-      game_team.team_id == team_id && game_team.result == "WIN"
-    end
-
-    # Cross-reference game_teams with games:
-    games_won = []
-    game_teams_won.each do |game_team|
-      games.each do |game|
-        games_won << game if game_team.game_id == game.game_id
-      end
-    end
-
-    # Using cross-referenced game list, create hash with season as keys,
-    # and won [Game objects array] as values
-    season_hash = games_won.group_by do |game|
-      game.season
-    end
-
-    # Count up the number of games for each season (remember these are "wins")
-    # For some reason, calling max_by on a hash returns an array.
-    season_with_most_wins = season_hash.max_by do |season, games|
+    season = games_won_by_season(team_id).max_by do |season, games|
       games.count
     end
+    season[0]
+  end
 
-    # so then I called the would-be key by using index 0 in the array
-    season_with_most_wins[0].to_s
+  def worst_season(team_id)
+    season = games_lost_by_season(team_id).max_by do |season, games|
+      games.count
+    end
+    season[0]
+  end
+
+  # Helper Methods----------------------
+
+  def game_ids_by(team_id, result)
+    from_game_teams = @game_teams.find_all do |game_team|
+      game_team.team_id == team_id && game_team.result == result
+    end
+    from_game_teams.map do |game_team|
+      game_team.game_id
+    end
+  end
+
+  def games_by(game_ids_array)
+    @games.find_all do |game|
+      game_ids_array.include?(game.game_id)
+    end
+  end
+
+  def games_won_by(team_id)
+    game_ids = game_ids_by(team_id, "WIN")
+    games_by(game_ids)
+  end
+
+  def games_lost_by(team_id)
+    game_ids = game_ids_by(team_id, "LOSS")
+    games_by(game_ids)
+  end
+
+  def games_won_by_season(team_id)
+    games_won_by(team_id).group_by do |game|
+      game.season
+    end
+  end
+
+  def games_lost_by_season(team_id)
+    games_lost_by(team_id).group_by do |game|
+      game.season
+    end
   end
 
 end
