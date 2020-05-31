@@ -317,8 +317,8 @@ class StatTracker
     season[0]
   end
 
-  def average_win_percentage
-    
+  def average_win_percentage(team_id)
+    games_won_by(team_id).count.fdiv(total_games_by(team_id)).round(2)
   end
 
   def most_goals_scored(team_id)
@@ -343,9 +343,17 @@ class StatTracker
 
   # Helper Methods----------------------
 
+  def game_teams_by(team_id)
+    # returns matching GameTeams
+    @game_teams.find_all do |game_team|
+      game_team.team_id == team_id
+    end
+  end
+
   def game_ids_by(team_id, result)
-    from_game_teams = @game_teams.find_all do |game_team|
-      game_team.team_id == team_id && game_team.result == result
+    # returns array of game_ids
+    from_game_teams = game_teams_by(team_id).find_all do |game_team|
+      game_team.result == result
     end
     from_game_teams.map do |game_team|
       game_team.game_id
@@ -353,9 +361,14 @@ class StatTracker
   end
 
   def games_by(game_ids_array)
+    # cross references array of game_ids with Games
     @games.find_all do |game|
       game_ids_array.include?(game.game_id)
     end
+  end
+
+  def total_games_by(team_id)
+    game_teams_by(team_id).count
   end
 
   def games_won_by(team_id)
