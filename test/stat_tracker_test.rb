@@ -108,6 +108,26 @@ class StatTrackerTest < Minitest::Test
     assert_equal game_nums_per_season, stat_tracker.count_of_games_by_season
   end
 
+  def test_it_can_find_all_games_total_scores
+    locations = {
+      games: './fixtures/games_gamestats_fixture_2.csv',
+      teams: './fixtures/teams_fixture.csv',
+      game_teams: './fixtures/game_teams_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal 67, stat_tracker.find_all_games_total_score
+  end
+
+  def test_it_can_get_average_goals_per_game
+    locations = {
+      games: './fixtures/games_gamestats_fixture_2.csv',
+      teams: './fixtures/teams_fixture.csv',
+      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal 4.47, stat_tracker.average_goals_per_game
+  end
+
   # LEAGUE STATISTICS
 
   def test_it_can_count_teams
