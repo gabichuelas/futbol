@@ -171,18 +171,10 @@ class StatTracker
     # and how to better set up average_scores_by_team method to be able to be
     # resued by multiple methods and take an argument of varying subsets of teams
     away_teams = find_game_teams("away")
-
-    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
+    sorted_away_team_scores = sort_scores_by_team(away_teams)
 
     avgs_by_team = {}
-    sorted_away_teams.each do |visiting_team_id, scores_array|
+    sorted_away_team_scores.each do |visiting_team_id, scores_array|
       avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
     end
 
@@ -195,18 +187,10 @@ class StatTracker
 
   def highest_scoring_home_team
     home_teams = find_game_teams("home")
-
-    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
+    sorted_home_team_scores = sort_scores_by_team(home_teams)
 
     avgs_by_team = {}
-    sorted_home_teams.each do |home_team_id, scores_array|
+    sorted_home_team_scores.each do |home_team_id, scores_array|
       avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
     end
 
@@ -219,18 +203,10 @@ class StatTracker
 
   def lowest_scoring_visitor
     away_teams = find_game_teams("away")
-
-    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
+    sorted_away_team_scores = sort_scores_by_team(away_teams)
 
     avgs_by_team = {}
-    sorted_away_teams.each do |visiting_team_id, scores_array|
+    sorted_away_team_scores.each do |visiting_team_id, scores_array|
       avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
     end
 
@@ -243,18 +219,10 @@ class StatTracker
 
   def lowest_scoring_home_team
     home_teams = find_game_teams("home")
-
-    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
+    sorted_home_team_scores = sort_scores_by_team(home_teams)
 
     avgs_by_team = {}
-    sorted_home_teams.each do |home_team_id, scores_array|
+    sorted_home_team_scores.each do |home_team_id, scores_array|
       avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
     end
 
