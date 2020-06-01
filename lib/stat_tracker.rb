@@ -150,22 +150,16 @@ class StatTracker
     find_team_by_id(lowest_avg_score.first).team_name
   end
 
-  def visiting_game_teams
+  def find_game_teams(home_or_away)
     @game_teams.find_all do |game_team|
-      game_team.hoa == "away"
+      game_team.hoa == home_or_away
     end
-  end
-
-  def home_game_teams
-
   end
 
   def highest_scoring_visitor # reconsider local variable names in this method
     # and how to better set up average_scores_by_team method to be able to be
     # resued by multiple methods and take an argument of varying subsets of teams
-    away_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "away"
-    end
+    away_teams = find_game_teams("away")
 
     sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
@@ -189,9 +183,7 @@ class StatTracker
   end
 
   def highest_scoring_home_team
-    home_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "home"
-    end
+    home_teams = find_game_teams("home")
 
     sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
@@ -215,9 +207,7 @@ class StatTracker
   end
 
   def lowest_scoring_visitor
-    away_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "away"
-    end
+    away_teams = find_game_teams("away")
 
     sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
@@ -241,9 +231,7 @@ class StatTracker
   end
 
   def lowest_scoring_home_team
-    home_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "home"
-    end
+    home_teams = find_game_teams("home")
 
     sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
       if team_scores[game.team_id].nil?
