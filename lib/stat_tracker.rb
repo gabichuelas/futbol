@@ -324,7 +324,6 @@ class StatTracker
     season_game_ids.include?(game.game_id)
     end
 
-
     season_shots_by_team = season_games.inject(Hash.new(0)) do |season_team_shots, game|
       season_team_shots[game.team_id] += game.shots.to_i
       season_team_shots
