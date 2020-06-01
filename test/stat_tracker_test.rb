@@ -191,7 +191,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_sort_scores_by_team
-    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',

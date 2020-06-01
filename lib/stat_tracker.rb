@@ -156,6 +156,17 @@ class StatTracker
     end
   end
 
+  def sort_scores_by_team(game_teams_collection)
+    game_teams_collection.reduce({}) do |sorted_scores, game_team|
+      if sorted_scores[game_team.team_id].nil?
+        sorted_scores[game_team.team_id] = [game_team.goals.to_i]
+      else
+        sorted_scores[game_team.team_id] << game_team.goals.to_i
+      end
+      sorted_scores
+    end
+  end
+
   def highest_scoring_visitor # reconsider local variable names in this method
     # and how to better set up average_scores_by_team method to be able to be
     # resued by multiple methods and take an argument of varying subsets of teams
