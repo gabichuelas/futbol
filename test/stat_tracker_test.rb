@@ -151,12 +151,12 @@ class StatTrackerTest < Minitest::Test
     assert_equal "FC Dallas", @stat_tracker.find_team_by_id("6").team_name
   end
 
-  def test_it_can_organize_scores_by_team
+  def test_it_can_organize_scores_by_team #### REPEAT METHOD
     team_scores = {"3"=>[2, 2, 1], "6"=>[3, 3, 2]}
     assert_equal team_scores, @stat_tracker.scores_by_team
   end
 
-  def test_it_can_report_each_teams_avg_score
+  def test_it_can_report_each_teams_avg_score #### REPEAT METHOD
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
     assert_equal average_scores, @stat_tracker.average_scores_by_team
   end
@@ -169,7 +169,7 @@ class StatTrackerTest < Minitest::Test
     assert_equal "Houston Dynamo", @stat_tracker.worst_offense
   end
 
-  def test_it_can_find_home_and_away_game_teams ###
+  def test_it_can_find_home_and_away_game_teams
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -190,7 +190,7 @@ class StatTrackerTest < Minitest::Test
     # or for it to be on one line but past the 80char limit?
   end
 
-  def test_it_can_sort_scores_by_team
+  def test_it_can_sort_scores_by_team #### REPEAT METHOD
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -209,7 +209,29 @@ class StatTrackerTest < Minitest::Test
     assert_equal sorted_scores, stat_tracker.sort_scores_by_team(away_game_teams)
   end
 
+  def test_it_can_calculate_teams_avg_scores #### REPEAT METHOD
+    skip
+    locations = {
+      games: './fixtures/games_fixture.csv',
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+
+    team_avgs = {"6"=>2.4,
+                "3"=>1.5,
+                "5"=>0.5,
+                "16"=>1.75,
+                "17"=>2.6666666666666665,
+                "8"=>2.0}
+
+    away_game_teams = stat_tracker.find_game_teams("away")
+    sorted_team_scores = stat_tracker.sort_scores_by_team(away_game_teams)
+    assert_equal team_avgs, stat_tracker.team_averages(sorted_team_scores)
+  end
+
   def test_it_can_identify_highest_scoring_visitor
+    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -221,6 +243,7 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_highest_scoring_home_team
+    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -232,6 +255,7 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_lowest_scoring_visitor
+    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -243,6 +267,7 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_lowest_scoring_home_team
+    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -259,7 +284,6 @@ class StatTrackerTest < Minitest::Test
   assert_instance_of Array, @stat_tracker.games_by_season("20122013")
   assert_equal 5, @stat_tracker.games_by_season("20122013").count
   end
-
 
   def test_winningest_coach
     game_path = './fixtures/games_fixture.csv'
