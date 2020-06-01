@@ -26,4 +26,16 @@ class GameTest < Minitest::Test
     assert_equal 5, @game.total_goals
   end
 
+  def test_has_a_result
+    assert_equal :home_win, @game.result
+  end
+
+  def test_it_has_a_winner
+    assert_equal "6", @game.winner
+  end
+
+  def test_it_has_a_loser
+    assert_equal "3", @game.loser
+  end
+
 end
