@@ -136,7 +136,11 @@ class StatTracker
   end
 
   def team_with_highest_average_score(team_averages) # better name??
-    team_averages.max_by { |_team, avg_score| avg_score}.first
+    team_averages.max_by { |_team, avg_score| avg_score }.first
+  end
+
+  def team_with_lowest_average_score(team_averages) # ^^
+    team_averages.min_by { |_team, avg_score| avg_score }.first
   end
 
   def best_offense
@@ -146,10 +150,7 @@ class StatTracker
 
   def worst_offense
     team_avgs = team_averages(sort_scores_by_team(@game_teams))
-    lowest_avg_score = team_avgs.min_by do |_team, avg_score|
-      avg_score
-    end
-    find_team_by_id(lowest_avg_score.first).team_name
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   def find_game_teams(home_or_away)

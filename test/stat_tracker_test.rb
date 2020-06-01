@@ -172,6 +172,12 @@ class StatTrackerTest < Minitest::Test
     # is it bad to test it this way without the full setup like the above test?
   end
 
+  def test_it_can_return_id_of_team_with_lowest_avg_score
+    average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
+    assert_equal "3", @stat_tracker.team_with_lowest_average_score(average_scores)
+    # ^^
+  end
+
   def test_it_can_identify_best_offense
     assert_equal "FC Dallas", @stat_tracker.best_offense
   end
