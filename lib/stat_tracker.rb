@@ -127,14 +127,6 @@ class StatTracker
     end
   end
 
-  def average_scores_by_team
-    avgs_by_team = {}
-    scores_by_team.each do |team, scores_array|
-      avgs_by_team[team] = (scores_array.sum / scores_array.count.to_f)
-    end
-    avgs_by_team
-  end
-
   def team_averages(sorted_team_scores) # alternate name to consider: score_averages_by_team
     avgs_by_team = {}
     sorted_team_scores.each do |team, scores_array|
@@ -144,19 +136,22 @@ class StatTracker
   end
 
   def best_offense
-    sort_scores_by_team(@game_teams)
-    highest_avg_score = average_scores_by_team.max_by do |_team, avg_score|
+    sorted_scores = sort_scores_by_team(@game_teams)
+    team_avgs = team_averages(sorted_scores)
+    highest_avg_score = team_avgs.max_by do |_team, avg_score|
       avg_score
     end
     find_team_by_id(highest_avg_score.first).team_name
   end
 
-  # def worst_offense
-  #   lowest_avg_score = average_scores_by_team.min_by do |_team, avg_score|
-  #     avg_score
-  #   end
-  #   find_team_by_id(lowest_avg_score.first).team_name
-  # end
+  def worst_offense
+    sorted_scores = sort_scores_by_team(@game_teams)
+    team_avgs = team_averages(sorted_scores)
+    lowest_avg_score = team_avgs.min_by do |_team, avg_score|
+      avg_score
+    end
+    find_team_by_id(lowest_avg_score.first).team_name
+  end
 
   def find_game_teams(home_or_away)
     @game_teams.find_all do |game_team|
