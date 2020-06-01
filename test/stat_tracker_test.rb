@@ -397,5 +397,6 @@ class StatTrackerTest < Minitest::Test
     assert_instance_of Hash, @stat_tracker.games_lost_by_season("3")
     assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
   end
+  
 
 end
