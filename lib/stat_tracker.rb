@@ -70,9 +70,9 @@ class StatTracker
       game.season
     end
 
-    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
-      games_by_season[season] = games.count
-      games_by_season
+    all_games_by_season_id.reduce({}) do |season_games, (season, games)|
+      season_games[season] = games.count
+      season_games
     end
   end
 
@@ -182,34 +182,30 @@ class StatTracker
   end
 
   # SEASON STATISTICS
-  def games_by_season(season)
+  def season_games(season)
     games.find_all { |game| game.season == season }
   end
 
   def winningest_coach(season)
     #season_games_by_id returns an array of just season game ids
-    season_game_ids = games_by_season(season).map do |game|
+    season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
     #then find all games in game_teams from the above season
-    season_games = game_teams.find_all do |game|
-    season_game_ids.include?(game.game_id)
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
     end
 
     # filter season games by wins
-    wins = season_games.find_all do |game|
-    game.result == "WIN"
-    end
+    season_wins = season_game_teams.find_all { |game| game.result == "WIN" }
 
     # returns an array of coach name for each win
-    coach_wins = wins.map do |game|
-    game.head_coach
-    end
+    coach_wins = season_wins.map { |game| game.head_coach }
 
     # creates a hash of number of season games won by coach
-    wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins_by_coach, coach|
-       wins_by_coach[coach] += 1; wins_by_coach
+    wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins, coach|
+       wins[coach] += 1; wins
      end
 
     #return the winningest head_coach name as a string
@@ -217,7 +213,7 @@ class StatTracker
   end
 
   def worst_coach(season)
-    season_game_ids = games_by_season(season).map do |game|
+    season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
@@ -225,24 +221,46 @@ class StatTracker
     season_game_ids.include?(game.game_id)
     end
 
-    losses = season_games.find_all do |game|
+    season_losses = season_games.find_all do |game|
     game.result == "LOSS"
     end
 
-    coach_losses = losses.map do |game|
+    coach_losses = season_losses.map do |game|
     game.head_coach
     end
 
-    losses_by_coach = coach_losses.inject(Hash.new(0)) do |losses_by_coach, coach|
-       losses_by_coach[coach] += 1; losses_by_coach
+    losses_by_coach = coach_losses.inject(Hash.new(0)) do |losses, coach|
+       losses[coach] += 1; losses
      end
 
     coach_losses.max_by { |coach| losses_by_coach[coach] }
   end
 
-  # def most_accurate_team(season)
-  #
-  # end
+  def most_accurate_team(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
+
+    season_games = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
+
+    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
+    season_games.each do |game_team|
+      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
+      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
+    end
+
+    team_accuracy = {}
+    season_team_accuracy.each do |team_id, stats|
+      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
+    end
+
+    most_accurate_team_id = team_accuracy.max_by { |team_id, acc| acc }[0]
+
+    teams.find { |team| team.team_id == most_accurate_team_id }.team_name
+  end
+
 
   # least_accurate_team(season)
 

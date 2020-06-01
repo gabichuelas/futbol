@@ -246,9 +246,9 @@ class StatTrackerTest < Minitest::Test
 
   # SEASON STATISTICS
 
-  def test_it_can_find_games_by_season
-  assert_instance_of Array, @stat_tracker.games_by_season("20122013")
-  assert_equal 5, @stat_tracker.games_by_season("20122013").count
+  def test_it_can_find_season_games
+    assert_instance_of Array, @stat_tracker.season_games("20122013")
+    assert_equal 5, @stat_tracker.season_games("20122013").count
   end
 
   def test_winningest_coach
@@ -264,10 +264,28 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
 
-    assert_equal "Claude Julien", @stat_tracker.winningest_coach("20122013")
+    assert_equal "Claude Julien", stat_tracker.winningest_coach("20122013")
   end
 
   def test_worst_coach
+    skip
+    # game_path = './fixtures/games_fixture.csv'
+    # team_path = './fixtures/teams_fixture.csv'
+    # game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+    #
+    # locations = {
+    # games: game_path,
+    # teams: team_path,
+    # game_teams: game_teams_path
+    # }
+    #
+    # stat_tracker = StatTracker.from_csv(locations)
+
+    # Name of the Coach with the worst win percentage for the season	String
+    assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")
+  end
+
+  def test_most_accurate_team
     game_path = './fixtures/games_fixture.csv'
     team_path = './fixtures/teams_fixture.csv'
     game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
@@ -280,14 +298,7 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
 
-    # Name of the Coach with the worst win percentage for the season	String
-    assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")
-  end
-
-  def test_most_accurate_team
-    skip
-    # Name of the Team with the best ratio of shots to goals for the season	String
-    assert_equal "FC Dallas", @stat_tracker.most_accurate_team("20122013")
+    assert_equal "FC Dallas", stat_tracker.most_accurate_team("20122013")
   end
 
   def test_least_accurate_team
