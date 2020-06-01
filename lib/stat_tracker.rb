@@ -118,11 +118,8 @@ class StatTracker
 
   def sort_scores_by_team(game_teams_collection)
     game_teams_collection.reduce({}) do |sorted_scores, game_team|
-      if sorted_scores[game_team.team_id].nil?
-        sorted_scores[game_team.team_id] = [game_team.goals.to_i]
-      else
-        sorted_scores[game_team.team_id] << game_team.goals.to_i
-      end
+      sorted_scores[game_team.team_id] ||= []
+      sorted_scores[game_team.team_id] << game_team.goals.to_i
       sorted_scores
     end
   end
