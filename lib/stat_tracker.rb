@@ -366,8 +366,28 @@ class StatTracker
   end
 
   def favorite_opponent(team_id)
-    fav_opponent = most_losses_against(team_id)
-    team_info(fav_opponent)["team_name"]
+  
+    games_lost_ids = game_ids_by(team_id, "LOSS")
+
+    opponent_wins = game_teams.find_all do |game_team|
+      games_lost_ids.include?(game_team.game_id) && game_team.team_id != team_id
+    end
+
+    opp_wins_by_team = opponent_wins.group_by do |game_team|
+      game_team.team_id
+    end
+
+    opp_team_win_count = opp_wins_by_team.reduce({}) do |acc, (team, game_teams)|
+      total_games = total_games_by(team)
+      acc[team] = game_teams.count.fdiv(total_games)
+      acc
+    end
+
+    fav_opponent = opp_team_win_count.min_by do |team, avg_win_percentage|
+      avg_win_percentage
+    end
+
+    team_info(fav_opponent[0])["team_name"]
   end
 
   def rival
@@ -422,34 +442,6 @@ class StatTracker
   def games_lost_by_season(team_id)
     games_lost_by(team_id).group_by do |game|
       game.season
-    end
-  end
-
-  def find_losing_opponents(team_id)
-    game_ids = game_ids_by(team_id, "WIN")
-    @game_teams.find_all do |game_team|
-      game_ids.include?(game_team.game_id) && game_team.team_id != team_id
-    end
-  end
-
-  def gameteams_by_loser_for(team_id)
-    loser_opponents = find_losing_opponents(team_id)
-    loser_opponents.group_by do |opponent|
-      opponent.team_id
-    end
-  end
-
-  def most_losses_against(team_id)
-    # returns team_id with most losses against given team
-    losers = gameteams_by_loser_for(team_id)
-    loss_counts = losers.reduce(Hash.new(0)) do |loss_counts, (team, game_teams)|
-      loss_counts[team] = game_teams.count
-      loss_counts
-    end
-
-    loss_counts.max_by do |team, counts|
-      counts
-      return team
     end
   end
 
