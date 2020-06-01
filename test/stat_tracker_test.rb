@@ -234,7 +234,7 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
 
-    assert_equal "Claude Julien", @stat_tracker.winningest_coach("20122013")
+    assert_equal "Claude Julien", stat_tracker.winningest_coach("20122013")
   end
 
   def test_worst_coach

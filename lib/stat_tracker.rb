@@ -273,18 +273,18 @@ class StatTracker
     end
 
     # filter season games by wins
-    wins = season_game_teams.find_all do |game|
+    season_wins = season_game_teams.find_all do |game|
     game.result == "WIN"
     end
 
     # returns an array of coach name for each win
-    coach_wins = wins.map do |game|
+    coach_wins = season_wins.map do |game|
     game.head_coach
     end
 
     # creates a hash of number of season games won by coach
-    wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins_by_coach, coach|
-       wins_by_coach[coach] += 1; wins_by_coach
+    wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins, coach|
+       wins[coach] += 1; wins
      end
 
     #return the winningest head_coach name as a string
@@ -300,16 +300,16 @@ class StatTracker
     season_game_ids.include?(game.game_id)
     end
 
-    losses = season_games.find_all do |game|
+    season_losses = season_games.find_all do |game|
     game.result == "LOSS"
     end
 
-    coach_losses = losses.map do |game|
+    coach_losses = season_losses.map do |game|
     game.head_coach
     end
 
-    losses_by_coach = coach_losses.inject(Hash.new(0)) do |losses_by_coach, coach|
-       losses_by_coach[coach] += 1; losses_by_coach
+    losses_by_coach = coach_losses.inject(Hash.new(0)) do |losses, coach|
+       losses[coach] += 1; losses
      end
 
     coach_losses.max_by { |coach| losses_by_coach[coach] }
