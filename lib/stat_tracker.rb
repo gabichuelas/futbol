@@ -324,17 +324,6 @@ class StatTracker
     season_game_ids.include?(game.game_id)
     end
 
-    # season_games_by_team = season_games.group_by do |game|
-    # game.team_id
-    # end
-    #
-    # season_team_ids = [season_games_by_team.keys].flatten
-    #
-    # season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
-    #
-    # season_teams_by_id = season_teams.group_by do |team|
-    #   team.team_id
-    # end
 
     season_shots_by_team = season_games.inject(Hash.new(0)) do |season_team_shots, game|
       season_team_shots[game.team_id] += game.shots.to_i
@@ -347,32 +336,35 @@ class StatTracker
     end
 
     season_team_accuracy = {}
-    season_goals_by_team.each do |team_id, total_goals|
-      total_goals.each do |variable|
-
+    season_goals_by_team.each do |team_goals_id, goals|
+      season_shots_by_team.each do |team_shots_id, shots|
+        if team_goals_id == team_shots_id
+          season_team_accuracy[team_goals_id] = (goals.to_f / shots.to_f).round(2)
+        end
       end
+      season_team_accuracy
+    end
 
-    endround(2)
+    most_accurate_team_id = season_team_accuracy.key(season_team_accuracy.values.max)
 
+    # possible helper method
+    season_games_by_team = season_games.group_by do |game|
+    game.team_id
+    end
 
-    require 'pry'; binding.pry
+    season_team_ids = [season_games_by_team.keys].flatten
 
-    #season team ids reduce/inject with team names and coaches?
+    season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
 
-    # sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
-    #   if team_scores[game.team_id].nil?
-    #     team_scores[game.team_id] = [game.goals.to_i]
-    #   else
-    #     team_scores[game.team_id] << game.goals.to_i
-    #   end
-    #   team_scores
-    # end
+    season_teams_by_id = season_teams.group_by do |team|
+      team.team_id
+    end
 
-    require 'pry'; binding.pry
+    most_accurate_team = season_teams_by_id.find do |team, season_teams_by_id|
+      team == most_accurate_team_id
+    end.flatten
 
-    # team_shots = season_games_by_team.each do |team, game|
-    #   team_shots[team] += game.
-    # end
+    most_accurate_team[1].team_name
   end
 
 
