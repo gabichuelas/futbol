@@ -111,143 +111,74 @@ class StatTracker
     end
   end
 
-  def scores_by_team
-    game_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
+  def sort_scores_by_team(game_teams_collection)
+    game_teams_collection.reduce({}) do |sorted_scores, game_team|
+      sorted_scores[game_team.team_id] ||= []
+      sorted_scores[game_team.team_id] << game_team.goals.to_i
+      sorted_scores
     end
   end
 
-  def average_scores_by_team
+  def team_averages(sorted_team_scores)
     avgs_by_team = {}
-    scores_by_team.each do |team, scores_array|
+    sorted_team_scores.each do |team, scores_array|
       avgs_by_team[team] = (scores_array.sum / scores_array.count.to_f)
     end
     avgs_by_team
   end
 
+  def team_with_highest_average_score(team_averages) # better name??
+    team_averages.max_by { |_team, avg_score| avg_score }.first
+  end
+
+  def team_with_lowest_average_score(team_averages) # ^^
+    team_averages.min_by { |_team, avg_score| avg_score }.first
+  end
+
+  # consider combining above two methods taking an addtl arg for max_by or min_by
+
   def best_offense
-    highest_avg_score = average_scores_by_team.max_by do |_team, avg_score|
-      avg_score
-    end
-    find_team_by_id(highest_avg_score.first).team_name
+    team_avgs = team_averages(sort_scores_by_team(@game_teams))
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def worst_offense
-    lowest_avg_score = average_scores_by_team.min_by do |_team, avg_score|
-      avg_score
-    end
-    find_team_by_id(lowest_avg_score.first).team_name
+    team_avgs = team_averages(sort_scores_by_team(@game_teams))
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
-  def highest_scoring_visitor # reconsider local variable names in this method
-    # and how to better set up average_scores_by_team method to be able to be
-    # resued by multiple methods and take an argument of varying subsets of teams
-    away_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "away"
+  def find_game_teams(home_or_away)
+    @game_teams.find_all do |game_team|
+      game_team.hoa == home_or_away
     end
+  end
 
-    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
-
-    avgs_by_team = {}
-    sorted_away_teams.each do |visiting_team_id, scores_array|
-      avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
-    end
-
-    highest_scoring_visitor_id = avgs_by_team.max_by do |_visiting_team_id, avg_score|
-      avg_score
-    end.first
-
-    find_team_by_id(highest_scoring_visitor_id).team_name
+  def highest_scoring_visitor
+    away_teams = find_game_teams("away")
+    sorted_away_team_scores = sort_scores_by_team(away_teams)
+    team_avgs = team_averages(sorted_away_team_scores)
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def highest_scoring_home_team
-    home_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "home"
-    end
-
-    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
-
-    avgs_by_team = {}
-    sorted_home_teams.each do |home_team_id, scores_array|
-      avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
-    end
-
-    highest_scoring_home_id = avgs_by_team.max_by do |_visiting_team_id, avg_score|
-      avg_score
-    end.first
-
-    find_team_by_id(highest_scoring_home_id).team_name
+    home_teams = find_game_teams("home")
+    sorted_home_team_scores = sort_scores_by_team(home_teams)
+    team_avgs = team_averages(sorted_home_team_scores)
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_visitor
-    away_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "away"
-    end
-
-    sorted_away_teams = away_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
-
-    avgs_by_team = {}
-    sorted_away_teams.each do |visiting_team_id, scores_array|
-      avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
-    end
-
-    lowest_scoring_visitor_id = avgs_by_team.min_by do |_visiting_team_id, avg_score|
-      avg_score
-    end.first
-
-    find_team_by_id(lowest_scoring_visitor_id).team_name
+    away_teams = find_game_teams("away")
+    sorted_away_team_scores = sort_scores_by_team(away_teams)
+    team_avgs = team_averages(sorted_away_team_scores)
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_home_team
-    home_teams = @game_teams.find_all do |game_team|
-      game_team.hoa == "home"
-    end
-
-    sorted_home_teams = home_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
-
-    avgs_by_team = {}
-    sorted_home_teams.each do |home_team_id, scores_array|
-      avgs_by_team[home_team_id] = (scores_array.sum / scores_array.count.to_f)
-    end
-
-    lowest_scoring_home_id = avgs_by_team.min_by do |_visiting_team_id, avg_score|
-      avg_score
-    end.first
-
-    find_team_by_id(lowest_scoring_home_id).team_name
+    home_teams = find_game_teams("home")
+    sorted_home_team_scores = sort_scores_by_team(home_teams)
+    team_avgs = team_averages(sorted_home_team_scores)
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   # SEASON STATISTICS

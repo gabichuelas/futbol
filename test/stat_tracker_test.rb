@@ -153,12 +153,29 @@ class StatTrackerTest < Minitest::Test
 
   def test_it_can_organize_scores_by_team
     team_scores = {"3"=>[2, 2, 1], "6"=>[3, 3, 2]}
-    assert_equal team_scores, @stat_tracker.scores_by_team
+    game_teams = @stat_tracker.game_teams
+    assert_equal team_scores, @stat_tracker.sort_scores_by_team(game_teams)
   end
 
   def test_it_can_report_each_teams_avg_score
+    game_teams = @stat_tracker.game_teams
+    team_scores = @stat_tracker.sort_scores_by_team(game_teams)
+
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
-    assert_equal average_scores, @stat_tracker.average_scores_by_team
+
+    assert_equal average_scores, @stat_tracker.team_averages(team_scores)
+  end
+
+  def test_it_can_return_id_of_team_with_highest_avg_score
+    average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
+    assert_equal "6", @stat_tracker.team_with_highest_average_score(average_scores)
+    # is it bad to test it this way without the full setup like the above test?
+  end
+
+  def test_it_can_return_id_of_team_with_lowest_avg_score
+    average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
+    assert_equal "3", @stat_tracker.team_with_lowest_average_score(average_scores)
+    # ^^
   end
 
   def test_it_can_identify_best_offense
@@ -167,6 +184,20 @@ class StatTrackerTest < Minitest::Test
 
   def test_it_can_identify_worst_offense
     assert_equal "Houston Dynamo", @stat_tracker.worst_offense
+  end
+
+  def test_it_can_find_home_and_away_game_teams
+    @stat_tracker.find_game_teams("away").each do |game_team|
+      assert_equal "away", game_team.hoa
+    end
+
+    @stat_tracker.find_game_teams("home").each do |game_team|
+      assert_equal "home", game_team.hoa
+    end
+
+    assert_equal 3, @stat_tracker.find_game_teams("away").count && @stat_tracker.find_game_teams("home").count
+    # is it better for this line to be split up into two separate assertions
+    # or for it to be on one line but past the 80char limit?
   end
 
   def test_it_can_identify_highest_scoring_visitor
@@ -219,7 +250,6 @@ class StatTrackerTest < Minitest::Test
   assert_instance_of Array, @stat_tracker.games_by_season("20122013")
   assert_equal 5, @stat_tracker.games_by_season("20122013").count
   end
-
 
   def test_winningest_coach
     game_path = './fixtures/games_fixture.csv'
