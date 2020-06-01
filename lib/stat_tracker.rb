@@ -127,7 +127,7 @@ class StatTracker
     end
   end
 
-  def team_averages(sorted_team_scores) # alternate name to consider: score_averages_by_team
+  def team_averages(sorted_team_scores)
     avgs_by_team = {}
     sorted_team_scores.each do |team, scores_array|
       avgs_by_team[team] = (scores_array.sum / scores_array.count.to_f)
@@ -135,18 +135,17 @@ class StatTracker
     avgs_by_team
   end
 
+  def team_with_highest_average_score(team_averages) # better name??
+    team_averages.max_by { |_team, avg_score| avg_score}.first
+  end
+
   def best_offense
-    sorted_scores = sort_scores_by_team(@game_teams)
-    team_avgs = team_averages(sorted_scores)
-    highest_avg_score = team_avgs.max_by do |_team, avg_score|
-      avg_score
-    end
-    find_team_by_id(highest_avg_score.first).team_name
+    team_avgs = team_averages(sort_scores_by_team(@game_teams))
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def worst_offense
-    sorted_scores = sort_scores_by_team(@game_teams)
-    team_avgs = team_averages(sorted_scores)
+    team_avgs = team_averages(sort_scores_by_team(@game_teams))
     lowest_avg_score = team_avgs.min_by do |_team, avg_score|
       avg_score
     end

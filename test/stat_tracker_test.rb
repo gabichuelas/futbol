@@ -151,19 +151,25 @@ class StatTrackerTest < Minitest::Test
     assert_equal "FC Dallas", @stat_tracker.find_team_by_id("6").team_name
   end
 
-  def test_it_can_organize_scores_by_team #### REPEAT METHOD - keep
+  def test_it_can_organize_scores_by_team
     team_scores = {"3"=>[2, 2, 1], "6"=>[3, 3, 2]}
     game_teams = @stat_tracker.game_teams
     assert_equal team_scores, @stat_tracker.sort_scores_by_team(game_teams)
   end
 
-  def test_it_can_report_each_teams_avg_score #### REPEAT METHOD - keep
+  def test_it_can_report_each_teams_avg_score
     game_teams = @stat_tracker.game_teams
     team_scores = @stat_tracker.sort_scores_by_team(game_teams)
 
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
 
     assert_equal average_scores, @stat_tracker.team_averages(team_scores)
+  end
+
+  def test_it_can_return_id_of_team_with_highest_avg_score
+    average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
+    assert_equal "6", @stat_tracker.team_with_highest_average_score(average_scores)
+    # is it bad to test it this way without the full setup like the above test?
   end
 
   def test_it_can_identify_best_offense
