@@ -190,8 +190,24 @@ class StatTrackerTest < Minitest::Test
     # or for it to be on one line but past the 80char limit?
   end
 
-  def test_it_can_find_all_home_game_teams ###
+  def test_it_can_sort_scores_by_team
     skip
+    locations = {
+      games: './fixtures/games_fixture.csv',
+      teams: './fixtures/teams_leaguestats_fixture.csv',
+      game_teams: './fixtures/game_teams_leaguestats_fixture.csv'
+    }
+    stat_tracker = StatTracker.from_csv(locations)
+
+    sorted_scores = {"3"=>[2, 2, 1],
+                    "6"=>[2, 3, 3, 4],
+                    "5"=>[1, 0],
+                    "17"=>[1, 2, 1, 1],
+                    "16"=>[1, 0, 2],
+                    "9"=>[2]}
+
+    away_game_teams = stat_tracker.find_game_teams("away")
+    assert_equal sorted_scores, stat_tracker.sort_scores_by_team(away_game_teams)
   end
 
   def test_it_can_identify_highest_scoring_visitor
