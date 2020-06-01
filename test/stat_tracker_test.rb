@@ -222,7 +222,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_lowest_scoring_home_team
-    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
