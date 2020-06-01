@@ -269,18 +269,14 @@ class StatTracker
 
     #then find all games in game_teams from the above season
     season_game_teams = game_teams.find_all do |game|
-    season_game_ids.include?(game.game_id)
+      season_game_ids.include?(game.game_id)
     end
 
     # filter season games by wins
-    season_wins = season_game_teams.find_all do |game|
-    game.result == "WIN"
-    end
+    season_wins = season_game_teams.find_all { |game| game.result == "WIN" }
 
     # returns an array of coach name for each win
-    coach_wins = season_wins.map do |game|
-    game.head_coach
-    end
+    coach_wins = season_wins.map { |game| game.head_coach }
 
     # creates a hash of number of season games won by coach
     wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins, coach|
@@ -321,49 +317,23 @@ class StatTracker
     end
 
     season_games = game_teams.find_all do |game|
-    season_game_ids.include?(game.game_id)
+      season_game_ids.include?(game.game_id)
     end
 
-    season_shots_by_team = season_games.inject(Hash.new(0)) do |season_team_shots, game|
-      season_team_shots[game.team_id] += game.shots.to_i
-      season_team_shots
+    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
+    season_games.each do |game_team|
+      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
+      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
     end
 
-    season_goals_by_team = season_games.inject(Hash.new(0)) do |season_team_goals, game|
-      season_team_goals[game.team_id] += game.goals.to_i
-      season_team_goals
+    team_accuracy = {}
+    season_team_accuracy.each do |team_id, stats|
+      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
     end
 
-    season_team_accuracy = {}
-    season_goals_by_team.each do |team_goals_id, goals|
-      season_shots_by_team.each do |team_shots_id, shots|
-        if team_goals_id == team_shots_id
-          season_team_accuracy[team_goals_id] = (goals.to_f / shots.to_f).round(2)
-        end
-      end
-      season_team_accuracy
-    end
+    most_accurate_team_id = team_accuracy.max_by { |team_id, acc| acc }[0]
 
-    most_accurate_team_id = season_team_accuracy.key(season_team_accuracy.values.max)
-
-    # possible helper method
-    season_games_by_team = season_games.group_by do |game|
-    game.team_id
-    end
-
-    season_team_ids = [season_games_by_team.keys].flatten
-
-    season_teams = teams.find_all { |team| season_team_ids.include?(team.team_id) }
-
-    season_teams_by_id = season_teams.group_by do |team|
-      team.team_id
-    end
-
-    most_accurate_team = season_teams_by_id.find do |team, season_teams_by_id|
-      team == most_accurate_team_id
-    end.flatten
-
-    most_accurate_team[1].team_name
+    teams.find { |team| team.team_id == most_accurate_team_id }.team_name
   end
 
 
