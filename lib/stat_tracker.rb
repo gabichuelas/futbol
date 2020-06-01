@@ -179,21 +179,15 @@ class StatTracker
     find_team_by_id(highest_scoring_home_id).team_name
   end
 
-  # def lowest_scoring_visitor
-  #   away_teams = find_game_teams("away")
-  #   sorted_away_team_scores = sort_scores_by_team(away_teams)
-  #
-  #   avgs_by_team = {}
-  #   sorted_away_team_scores.each do |visiting_team_id, scores_array|
-  #     avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
-  #   end
-  #
-  #   lowest_scoring_visitor_id = avgs_by_team.min_by do |_visiting_team_id, avg_score|
-  #     avg_score
-  #   end.first
-  #
-  #   find_team_by_id(lowest_scoring_visitor_id).team_name
-  # end
+  def lowest_scoring_visitor
+    away_teams = find_game_teams("away")
+    sorted_away_team_scores = sort_scores_by_team(away_teams)
+    team_avgs = team_averages(sorted_away_team_scores)
+    lowest_scoring_visitor_id = team_avgs.min_by do |_team_id, avg_score|
+      avg_score
+    end.first
+    find_team_by_id(lowest_scoring_visitor_id).team_name
+  end
 
   # def lowest_scoring_home_team
   #   home_teams = find_game_teams("home")
