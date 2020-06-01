@@ -163,40 +163,28 @@ class StatTracker
     away_teams = find_game_teams("away")
     sorted_away_team_scores = sort_scores_by_team(away_teams)
     team_avgs = team_averages(sorted_away_team_scores)
-    highest_scoring_visitor_id = team_avgs.max_by do |_team_id, avg_score|
-      avg_score
-    end.first
-    find_team_by_id(highest_scoring_visitor_id).team_name
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def highest_scoring_home_team
     home_teams = find_game_teams("home")
     sorted_home_team_scores = sort_scores_by_team(home_teams)
     team_avgs = team_averages(sorted_home_team_scores)
-    highest_scoring_home_id = team_avgs.max_by do |_team_id, avg_score|
-      avg_score
-    end.first
-    find_team_by_id(highest_scoring_home_id).team_name
+    find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_visitor
     away_teams = find_game_teams("away")
     sorted_away_team_scores = sort_scores_by_team(away_teams)
     team_avgs = team_averages(sorted_away_team_scores)
-    lowest_scoring_visitor_id = team_avgs.min_by do |_team_id, avg_score|
-      avg_score
-    end.first
-    find_team_by_id(lowest_scoring_visitor_id).team_name
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_home_team
     home_teams = find_game_teams("home")
     sorted_home_team_scores = sort_scores_by_team(home_teams)
     team_avgs = team_averages(sorted_home_team_scores)
-    lowest_scoring_home_id = team_avgs.min_by do |_team_id, avg_score|
-      avg_score
-    end.first
-    find_team_by_id(lowest_scoring_home_id).team_name
+    find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   # SEASON STATISTICS
