@@ -116,17 +116,6 @@ class StatTracker
     end
   end
 
-  def scores_by_team
-    game_teams.reduce({}) do |team_scores, game|
-      if team_scores[game.team_id].nil?
-        team_scores[game.team_id] = [game.goals.to_i]
-      else
-        team_scores[game.team_id] << game.goals.to_i
-      end
-      team_scores
-    end
-  end
-
   def sort_scores_by_team(game_teams_collection)
     game_teams_collection.reduce({}) do |sorted_scores, game_team|
       if sorted_scores[game_team.team_id].nil?
@@ -154,12 +143,13 @@ class StatTracker
     avgs_by_team
   end
 
-  # def best_offense
-  #   highest_avg_score = average_scores_by_team.max_by do |_team, avg_score|
-  #     avg_score
-  #   end
-  #   find_team_by_id(highest_avg_score.first).team_name
-  # end
+  def best_offense
+    sort_scores_by_team(@game_teams)
+    highest_avg_score = average_scores_by_team.max_by do |_team, avg_score|
+      avg_score
+    end
+    find_team_by_id(highest_avg_score.first).team_name
+  end
 
   # def worst_offense
   #   lowest_avg_score = average_scores_by_team.min_by do |_team, avg_score|

@@ -151,14 +151,19 @@ class StatTrackerTest < Minitest::Test
     assert_equal "FC Dallas", @stat_tracker.find_team_by_id("6").team_name
   end
 
-  def test_it_can_organize_scores_by_team #### REPEAT METHOD
+  def test_it_can_organize_scores_by_team #### REPEAT METHOD - keep
     team_scores = {"3"=>[2, 2, 1], "6"=>[3, 3, 2]}
-    assert_equal team_scores, @stat_tracker.scores_by_team
+    game_teams = @stat_tracker.game_teams
+    assert_equal team_scores, @stat_tracker.sort_scores_by_team(game_teams)
   end
 
-  def test_it_can_report_each_teams_avg_score #### REPEAT METHOD
+  def test_it_can_report_each_teams_avg_score #### REPEAT METHOD - keep
+    game_teams = @stat_tracker.game_teams
+    team_scores = @stat_tracker.sort_scores_by_team(game_teams)
+
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
-    assert_equal average_scores, @stat_tracker.average_scores_by_team
+
+    assert_equal average_scores, @stat_tracker.team_averages(team_scores)
   end
 
   def test_it_can_identify_best_offense
@@ -166,10 +171,12 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_worst_offense
+    skip
     assert_equal "Houston Dynamo", @stat_tracker.worst_offense
   end
 
   def test_it_can_find_home_and_away_game_teams
+    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -190,7 +197,7 @@ class StatTrackerTest < Minitest::Test
     # or for it to be on one line but past the 80char limit?
   end
 
-  def test_it_can_sort_scores_by_team #### REPEAT METHOD
+  def test_it_can_sort_scores_by_team #### remove duplicative method test
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',
@@ -209,7 +216,7 @@ class StatTrackerTest < Minitest::Test
     assert_equal sorted_scores, stat_tracker.sort_scores_by_team(away_game_teams)
   end
 
-  def test_it_can_calculate_teams_avg_scores #### REPEAT METHOD
+  def test_it_can_calculate_teams_avg_scores #### remove duplicative method test
     skip
     locations = {
       games: './fixtures/games_fixture.csv',
