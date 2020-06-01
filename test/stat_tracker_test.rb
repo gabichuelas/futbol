@@ -189,7 +189,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_identify_highest_scoring_visitor
-    skip
     locations = {
       games: './fixtures/games_fixture.csv',
       teams: './fixtures/teams_leaguestats_fixture.csv',

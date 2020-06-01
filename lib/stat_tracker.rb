@@ -159,17 +159,13 @@ class StatTracker
     end
   end
 
-  def highest_scoring_visitor # reconsider local variable names in this method
-    # and how to better set up average_scores_by_team method to be able to be
-    # resued by multiple methods and take an argument of varying subsets of teams
+  def highest_scoring_visitor
     away_teams = find_game_teams("away")
     sorted_away_team_scores = sort_scores_by_team(away_teams)
 
-    avgs_by_team = {}
-    sorted_away_team_scores.each do |visiting_team_id, scores_array|
-      avgs_by_team[visiting_team_id] = (scores_array.sum / scores_array.count.to_f)
-    end
-    highest_scoring_visitor_id = avgs_by_team.max_by do |_visiting_team_id, avg_score|
+    team_avgs = team_averages(sorted_away_team_scores)
+
+    highest_scoring_visitor_id = team_avgs.max_by do |_team_id, avg_score|
       avg_score
     end.first
 
