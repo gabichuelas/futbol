@@ -334,17 +334,17 @@ class StatTracker
   end
 
   def best_season(team_id)
-    season = games_won_by_season(team_id).max_by do |season, games|
-      games.count
+    best_season = win_percentage_by_season(team_id).max_by do |season, percentage|
+      percentage
     end
-    season[0]
+    best_season[0]
   end
 
   def worst_season(team_id)
-    season = games_lost_by_season(team_id).max_by do |season, games|
-      games.count
+    worst_season = win_percentage_by_season(team_id).min_by do |season, percentage|
+      percentage
     end
-    season[0]
+    worst_season[0]
   end
 
   def average_win_percentage(team_id)
@@ -430,56 +430,33 @@ class StatTracker
     end
   end
 
-  # -------------------------------------
-
-  def game_teams_by(team_id)
-    # returns matching GameTeams
-    @game_teams.find_all do |game_team|
-      game_team.team_id == team_id
+  def results_by_season(team_id)
+    games = find_games_for(team_id)
+    games.reduce({}) do |acc, game|
+      acc[game.season] ||= {won: 0, lost: 0, tied: 0}
+      acc[game.season][:won] += 1 if game.winner == team_id
+      acc[game.season][:lost] += 1 if game.loser == team_id
+      acc[game.season][:tied] += 1 if game.result == :tie
+      acc
     end
   end
 
-  def game_ids_by(team_id, result)
-    # returns array of game_ids
-    from_game_teams = game_teams_by(team_id).find_all do |game_team|
-      game_team.result == result
-    end
-    from_game_teams.map do |game_team|
-      game_team.game_id
-    end
-  end
-
-  def games_by(game_ids_array)
-    # cross references array of game_ids with Games
-    @games.find_all do |game|
-      game_ids_array.include?(game.game_id)
+  def win_percentage_by_season(team_id)
+    season_tallies = results_by_season(team_id)
+    season_tallies.reduce({}) do |acc, (season, tally_hash)|
+      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
+      acc[season] = win_percentage
+      acc
     end
   end
 
-  def total_games_by(team_id)
-    game_teams_by(team_id).count
-  end
-
-  def games_won_by(team_id)
-    game_ids = game_ids_by(team_id, "WIN")
-    games_by(game_ids)
-  end
-
-  def games_lost_by(team_id)
-    game_ids = game_ids_by(team_id, "LOSS")
-    games_by(game_ids)
-  end
-
-  def games_won_by_season(team_id)
-    games_won_by(team_id).group_by do |game|
-      game.season
-    end
-  end
-
-  def games_lost_by_season(team_id)
-    games_lost_by(team_id).group_by do |game|
-      game.season
-    end
-  end
+  # def loss_percentage_by_season(team_id)
+  #   season_tallies = results_by_season(team_id)
+  #   season_tallies.reduce({}) do |acc, (season, tally_hash)|
+  #     loss_percentage = tally_hash[:lost].fdiv(tally_hash.values.sum)
+  #     acc[season] = loss_percentage
+  #     acc
+  #   end
+  # end
 
 end

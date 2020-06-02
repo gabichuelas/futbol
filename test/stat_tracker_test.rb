@@ -15,8 +15,16 @@ class StatTrackerTest < Minitest::Test
       teams: team_path,
       game_teams: game_teams_path
     }
-
     @stat_tracker = StatTracker.from_csv(locations)
+
+    # TEAM STATS SETUP---------------
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    @team_stat_tracker = StatTracker.from_csv(locations)
   end
 
   def test_it_exists
@@ -300,11 +308,7 @@ class StatTrackerTest < Minitest::Test
     assert_equal "20122013", @stat_tracker.worst_season("3")
   end
 
-  def test_worst_season_by_team_id_expanded
-    skip
-    # WORST_SEASON MIGHT NEED TO BE FIXED. COME BACK TO THIS.
-    # this is the only test that uses full csv, and
-    # it's a little noticeably slower.
+  def test_worst_season_by_team_id_full_csv
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -313,37 +317,17 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
     assert_equal "20142015", stat_tracker.worst_season("6")
-    # using full csv, assertion should be "20142015" according to
-    # spec harness expected results
   end
 
   def test_average_win_percentage_by_team
-    # skip
-    # Average win percentage of all games for a team; float
-    locations = {
-      games: './fixtures/games_teamstats_fixture.csv',
-      teams: './fixtures/teams_teamstats_fixture.csv',
-      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
-    }
-
-    stat_tracker = StatTracker.from_csv(locations)
-    assert_equal 0.57, stat_tracker.average_win_percentage("17")
+    assert_equal 0.57, @team_stat_tracker.average_win_percentage("17")
   end
 
   def test_can_get_favorite_opponent_for_given_team
-    # skip
-    locations = {
-      games: './fixtures/games_teamstats_fixture.csv',
-      teams: './fixtures/teams_teamstats_fixture.csv',
-      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
-    }
-
-    stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "New England Revolution", stat_tracker.favorite_opponent("17")
+    assert_equal "New England Revolution", @team_stat_tracker.favorite_opponent("17")
   end
 
   def test_can_get_favorite_opponent_full_csv
-    # skip
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -355,53 +339,7 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_rival_by_team
-    locations = {
-      games: './fixtures/games_teamstats_fixture.csv',
-      teams: './fixtures/teams_teamstats_fixture.csv',
-      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
-    }
-
-    stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "FC Dallas", stat_tracker.rival("3")
+    assert_equal "FC Dallas", @team_stat_tracker.rival("3")
   end
-
-  # Helpers
-
-  def test_game_ids_by_team_and_result
-    assert_equal ["2012030221", "2012030222", "2012030223"], @stat_tracker.game_ids_by("6", "WIN")
-    assert_equal ["2012030221", "2012030222", "2012030223"], @stat_tracker.game_ids_by("3", "LOSS")
-  end
-
-  def test_games_by_id_array
-    game_id_array = @stat_tracker.game_ids_by("6", "WIN")
-    assert_equal 3, game_id_array.count
-    assert_instance_of Array, game_id_array
-  end
-
-  def test_games_won_by_team_id
-    game_id_array = @stat_tracker.game_ids_by("6", "WIN")
-
-    @stat_tracker.games_by(game_id_array).each do |game|
-      assert_instance_of Game, game
-    end
-  end
-
-  def test_games_lost_by_team_id
-    game_id_array = @stat_tracker.game_ids_by("3", "LOSS")
-    @stat_tracker.games_by(game_id_array).each do |game|
-      assert_instance_of Game, game
-    end
-  end
-
-  def test_games_won_by_season_per_team
-    assert_instance_of Hash, @stat_tracker.games_won_by_season("6")
-    assert_instance_of Game, @stat_tracker.games_won_by_season("6").values[0][0]
-  end
-
-  def test_games_lost_by_season_per_team
-    assert_instance_of Hash, @stat_tracker.games_lost_by_season("3")
-    assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
-  end
-
 
 end
