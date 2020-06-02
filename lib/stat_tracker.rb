@@ -1,10 +1,12 @@
 require_relative './readable'
+require_relative './team_stats_module'
 require_relative './game'
 require_relative './team'
 require_relative './game_team'
 
 class StatTracker
   include Readable
+  include TeamStats
 
   attr_reader :games, :teams, :game_teams
 
@@ -269,6 +271,7 @@ class StatTracker
   # fewest_tackles(season)
 
   # TEAM STATISTICS
+  # Uses helper methods from TeamStats module
 
   def team_info(id)
     teams.find do |team|
@@ -277,21 +280,21 @@ class StatTracker
   end
 
   def best_season(team_id)
-    season = games_won_by_season(team_id).max_by do |season, games|
-      games.count
+    best_season = win_percentage_by_season(team_id).max_by do |season, percentage|
+      percentage
     end
-    season[0]
+    best_season[0]
   end
 
   def worst_season(team_id)
-    season = games_lost_by_season(team_id).max_by do |season, games|
-      games.count
+    worst_season = win_percentage_by_season(team_id).min_by do |season, percentage|
+      percentage
     end
-    season[0]
+    worst_season[0]
   end
 
   def average_win_percentage(team_id)
-    games_won_by(team_id).count.fdiv(total_games_by(team_id)).round(2)
+    win_percentage_by_team(team_id)[team_id].round(2)
   end
 
   def most_goals_scored(team_id)
@@ -312,95 +315,14 @@ class StatTracker
     opp_id = win_percentage_by_opponent(team_id).min_by do |opponent, win_percentage|
       win_percentage
     end
-
     find_team_by_id(opp_id[0]).team_name
   end
 
-  def rival
-    # same as favorite_opponent but with max_by
-  end
-
-  # Helper Methods----------------------
-
-  def find_games_for(team_id)
-    @games.find_all do |game|
-      game.away_team_id == team_id || game.home_team_id == team_id
+  def rival(team_id)
+    opp_id = win_percentage_by_opponent(team_id).max_by do |opponent, win_percentage|
+      win_percentage
     end
-  end
-
-  def results_by_opponent(team_id)
-    games = find_games_for(team_id)
-
-    games.reduce({}) do |acc, game|
-      opponent = game.opponent(team_id)
-      acc[opponent] ||= {won: 0, lost: 0, tied: 0}
-      acc[opponent][:won] += 1 if game.winner == opponent
-      acc[opponent][:lost] += 1 if game.loser == opponent
-      acc[opponent][:tied] += 1 if game.result == :tie
-      acc
-    end
-  end
-
-  def win_percentage_by_opponent(team_id)
-    opp_tallies = results_by_opponent(team_id)
-    # require "pry"; binding.pry
-    opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[opponent] = win_percentage
-      acc
-    end
-  end
-
-  # -------------------------------------
-
-  def game_teams_by(team_id)
-    # returns matching GameTeams
-    @game_teams.find_all do |game_team|
-      game_team.team_id == team_id
-    end
-  end
-
-  def game_ids_by(team_id, result)
-    # returns array of game_ids
-    from_game_teams = game_teams_by(team_id).find_all do |game_team|
-      game_team.result == result
-    end
-    from_game_teams.map do |game_team|
-      game_team.game_id
-    end
-  end
-
-  def games_by(game_ids_array)
-    # cross references array of game_ids with Games
-    @games.find_all do |game|
-      game_ids_array.include?(game.game_id)
-    end
-  end
-
-  def total_games_by(team_id)
-    game_teams_by(team_id).count
-  end
-
-  def games_won_by(team_id)
-    game_ids = game_ids_by(team_id, "WIN")
-    games_by(game_ids)
-  end
-
-  def games_lost_by(team_id)
-    game_ids = game_ids_by(team_id, "LOSS")
-    games_by(game_ids)
-  end
-
-  def games_won_by_season(team_id)
-    games_won_by(team_id).group_by do |game|
-      game.season
-    end
-  end
-
-  def games_lost_by_season(team_id)
-    games_lost_by(team_id).group_by do |game|
-      game.season
-    end
+    find_team_by_id(opp_id[0]).team_name
   end
 
 end
