@@ -348,7 +348,7 @@ class StatTracker
   end
 
   def average_win_percentage(team_id)
-    games_won_by(team_id).count.fdiv(total_games_by(team_id)).round(2)
+    win_percentage_by_team(team_id)[team_id].round(2)
   end
 
   def most_goals_scored(team_id)
@@ -389,9 +389,19 @@ class StatTracker
     end
   end
 
+  def results_by_team(team_id)
+    games = find_games_for(team_id)
+    games.reduce({}) do |acc, game|
+      acc[team_id] ||= {won: 0, lost: 0, tied: 0}
+      acc[team_id][:won] += 1 if game.winner == team_id
+      acc[team_id][:lost] += 1 if game.loser == team_id
+      acc[team_id][:tied] += 1 if game.result == :tie
+      acc
+    end
+  end
+
   def results_by_opponent(team_id)
     games = find_games_for(team_id)
-
     games.reduce({}) do |acc, game|
       opponent = game.opponent(team_id)
       acc[opponent] ||= {won: 0, lost: 0, tied: 0}
@@ -407,6 +417,15 @@ class StatTracker
     opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
       win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
       acc[opponent] = win_percentage
+      acc
+    end
+  end
+
+  def win_percentage_by_team(team_id)
+    game_tallies = results_by_team(team_id)
+    game_tallies.reduce({}) do |acc, (team, tally_hash)|
+      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
+      acc[team] = win_percentage
       acc
     end
   end
