@@ -301,8 +301,19 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_least_accurate_team
-    skip
-    # Name of the Team with the worst ratio of shots to goals for the season	String
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
+    assert_equal "Houston Dynamo", stat_tracker.least_accurate_team("20122013")
   end
 
   def test_most_tackles
