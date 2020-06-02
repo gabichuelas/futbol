@@ -268,20 +268,19 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_coach
-    skip
-    # game_path = './fixtures/games_fixture.csv'
-    # team_path = './fixtures/teams_fixture.csv'
-    # game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-    #
-    # locations = {
-    # games: game_path,
-    # teams: team_path,
-    # game_teams: game_teams_path
-    # }
-    #
-    # stat_tracker = StatTracker.from_csv(locations)
 
-    # Name of the Coach with the worst win percentage for the season	String
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
     assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")
   end
 
