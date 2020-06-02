@@ -269,7 +269,30 @@ class StatTracker
     teams.find { |team| team.team_id == most_accurate_team_id }.team_name
   end
 
-  # least_accurate_team(season)
+  def least_accurate_team(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
+
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
+
+    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
+    season_game_teams.each do |game_team|
+      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
+      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
+    end
+
+    team_accuracy = {}
+    season_team_accuracy.each do |team_id, stats|
+      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
+    end
+
+    least_accurate_team_id = team_accuracy.min_by { |team_id, acc| acc }[0]
+
+    teams.find { |team| team.team_id == least_accurate_team_id }.team_name
+  end
 
   # most_tackles(season)
 
