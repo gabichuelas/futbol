@@ -15,8 +15,16 @@ class StatTrackerTest < Minitest::Test
       teams: team_path,
       game_teams: game_teams_path
     }
-
     @stat_tracker = StatTracker.from_csv(locations)
+
+    # TEAM STATS SETUP---------------
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    @team_stat_tracker = StatTracker.from_csv(locations)
   end
 
   def test_it_exists
@@ -244,9 +252,9 @@ class StatTrackerTest < Minitest::Test
 
   # SEASON STATISTICS
 
-  def test_it_can_find_games_by_season
-  assert_instance_of Array, @stat_tracker.games_by_season("20122013")
-  assert_equal 5, @stat_tracker.games_by_season("20122013").count
+  def test_it_can_find_season_games
+    assert_instance_of Array, @stat_tracker.season_games("20122013")
+    assert_equal 5, @stat_tracker.season_games("20122013").count
   end
 
   def test_winningest_coach
@@ -262,7 +270,7 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
 
-    assert_equal "Claude Julien", @stat_tracker.winningest_coach("20122013")
+    assert_equal "Claude Julien", stat_tracker.winningest_coach("20122013")
   end
 
   def test_worst_coach
@@ -278,29 +286,47 @@ class StatTrackerTest < Minitest::Test
 
     stat_tracker = StatTracker.from_csv(locations)
 
-    # Name of the Coach with the worst win percentage for the season	String
     assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")
   end
 
   def test_most_accurate_team
-    skip
-    # Name of the Team with the best ratio of shots to goals for the season	String
-    assert_equal "FC Dallas", @stat_tracker.most_accurate_team("20122013")
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
+    assert_equal "FC Dallas", stat_tracker.most_accurate_team("20122013")
   end
 
   def test_least_accurate_team
-    skip
-    # Name of the Team with the worst ratio of shots to goals for the season	String
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
+    assert_equal "Houston Dynamo", stat_tracker.least_accurate_team("20122013")
   end
 
   def test_most_tackles
-    skip
-    # Name of the Team with the most tackles in the season	String
+    assert_equal "FC Dallas", @stat_tracker.most_tackles("20122013")
   end
 
   def test_fewest_tackles
-    skip
-    # Name of the Team with the fewest tackles in the season	String
+    assert_equal "Houston Dynamo", @stat_tracker.fewest_tackles("20122013")
   end
 
   # TEAM STATISTICS
@@ -308,8 +334,8 @@ class StatTrackerTest < Minitest::Test
   def test_can_get_team_info_hash
     result = @stat_tracker.team_info("1")
     assert_instance_of Hash, result
-    assert_equal "1", result[:team_id]
-    assert_equal "ATL", result[:abbreviation]
+    assert_equal "1", result["team_id"]
+    assert_equal "ATL", result["abbreviation"]
   end
 
   def test_most_goals_scored_for_given_team
@@ -328,11 +354,7 @@ class StatTrackerTest < Minitest::Test
     assert_equal "20122013", @stat_tracker.worst_season("3")
   end
 
-  def test_worst_season_by_team_id_expanded
-    skip
-    # THIS TEST IS BROKEN SOMEHOW
-    # this is the only test that uses full csv, and
-    # it's a little noticeably slower.
+  def test_worst_season_by_team_id_full_csv
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -340,68 +362,30 @@ class StatTrackerTest < Minitest::Test
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal "20152016", stat_tracker.worst_season("6")
-  end
-
-  # Helpers
-
-  def test_game_ids_by_team_and_result
-    assert_equal ["2012030221", "2012030222", "2012030223"], @stat_tracker.game_ids_by("6", "WIN")
-    assert_equal ["2012030221", "2012030222", "2012030223"], @stat_tracker.game_ids_by("3", "LOSS")
-  end
-
-  def test_games_by_id_array
-    game_id_array = @stat_tracker.game_ids_by("6", "WIN")
-    assert_equal 3, game_id_array.count
-    assert_instance_of Array, game_id_array
-  end
-
-  def test_games_won_by_team_id
-    game_id_array = @stat_tracker.game_ids_by("6", "WIN")
-
-    @stat_tracker.games_by(game_id_array).each do |game|
-      assert_instance_of Game, game
-    end
-  end
-
-  def test_games_lost_by_team_id
-    game_id_array = @stat_tracker.game_ids_by("3", "LOSS")
-    @stat_tracker.games_by(game_id_array).each do |game|
-      assert_instance_of Game, game
-    end
-  end
-
-  def test_games_won_by_season_per_team
-    assert_instance_of Hash, @stat_tracker.games_won_by_season("6")
-    assert_instance_of Game, @stat_tracker.games_won_by_season("6").values[0][0]
-  end
-
-  def test_games_lost_by_season_per_team
-    assert_instance_of Hash, @stat_tracker.games_lost_by_season("3")
-    assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
+    assert_equal "20142015", stat_tracker.worst_season("6")
   end
 
   def test_average_win_percentage_by_team
-    # skip
-    # Average win percentage of all games for a team; float
+    assert_equal 0.57, @team_stat_tracker.average_win_percentage("17")
+  end
+
+  def test_can_get_favorite_opponent_for_given_team
+    assert_equal "New England Revolution", @team_stat_tracker.favorite_opponent("17")
+  end
+
+  def test_can_get_favorite_opponent_full_csv
     locations = {
-      games: './fixtures/games_teamstats_fixture.csv',
-      teams: './fixtures/teams_teamstats_fixture.csv',
-      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+      games: './data/games.csv',
+      teams: './data/teams.csv',
+      game_teams: './data/game_teams.csv'
     }
 
     stat_tracker = StatTracker.from_csv(locations)
-    assert_equal 0.57, stat_tracker.average_win_percentage("17")
-  end
-
-  def test_favorite_opponent_by_team
-    # Name of opponent that has the lowest win percentage
-    # against given team; String
+    assert_equal "DC United", stat_tracker.favorite_opponent("18")
   end
 
   def test_rival_by_team
-    # name of opponent that has the highest win percentage
-    # against the given team
+    assert_equal "FC Dallas", @team_stat_tracker.rival("3")
   end
 
 end
