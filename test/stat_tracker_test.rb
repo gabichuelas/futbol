@@ -268,7 +268,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_coach
-
     game_path = './fixtures/games_fixture.csv'
     team_path = './fixtures/teams_fixture.csv'
     game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
@@ -321,7 +320,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_fewest_tackles
-    # Name of the Team with the fewest tackles in the season	String
     assert_equal "Houston Dynamo", @stat_tracker.fewest_tackles("20122013")
   end
 
