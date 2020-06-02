@@ -317,8 +317,8 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_most_tackles
-    skip
-    # Name of the Team with the most tackles in the season	String
+    # Name of the Team with the most tackles in the season
+    assert_equal "FC Dallas", @stat_tracker.most_tackles("20122013")
   end
 
   def test_fewest_tackles
