@@ -152,35 +152,35 @@ class StatTracker
     find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
-  def find_game_teams(home_or_away)
+  def find_game_teams_by_hoa(hoa)
     @game_teams.find_all do |game_team|
-      game_team.hoa == home_or_away
+      game_team.hoa == hoa
     end
   end
 
   def highest_scoring_visitor
-    away_teams = find_game_teams("away")
+    away_teams = find_game_teams_by_hoa("away")
     sorted_away_team_scores = sort_scores_by_team(away_teams)
     team_avgs = team_averages(sorted_away_team_scores)
     find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def highest_scoring_home_team
-    home_teams = find_game_teams("home")
+    home_teams = find_game_teams_by_hoa("home")
     sorted_home_team_scores = sort_scores_by_team(home_teams)
     team_avgs = team_averages(sorted_home_team_scores)
     find_team_by_id(team_with_highest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_visitor
-    away_teams = find_game_teams("away")
+    away_teams = find_game_teams_by_hoa("away")
     sorted_away_team_scores = sort_scores_by_team(away_teams)
     team_avgs = team_averages(sorted_away_team_scores)
     find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
 
   def lowest_scoring_home_team
-    home_teams = find_game_teams("home")
+    home_teams = find_game_teams_by_hoa("home")
     sorted_home_team_scores = sort_scores_by_team(home_teams)
     team_avgs = team_averages(sorted_home_team_scores)
     find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
