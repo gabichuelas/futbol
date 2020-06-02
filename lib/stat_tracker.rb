@@ -1,6 +1,6 @@
-require_relative './collection'
+require_relative './statistics'
 
-class StatTracker < Collection
+class StatTracker < Statistics
 
   def initialize(stat_tracker_params)
     super(stat_tracker_params)
@@ -321,17 +321,15 @@ class StatTracker < Collection
   end
 
   def best_season(team_id)
-    best_season = win_percentage_by_season(team_id).max_by do |season, percentage|
+    win_percentage_by_season(team_id).max_by do |season, percentage|
       percentage
-    end
-    best_season[0]
+    end[0]
   end
 
   def worst_season(team_id)
-    worst_season = win_percentage_by_season(team_id).min_by do |season, percentage|
+    win_percentage_by_season(team_id).min_by do |season, percentage|
       percentage
-    end
-    worst_season[0]
+    end[0]
   end
 
   def average_win_percentage(team_id)

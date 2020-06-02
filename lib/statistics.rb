@@ -3,7 +3,7 @@ require_relative './game'
 require_relative './team'
 require_relative './game_team'
 
-class Collection
+class Statistics
   include Readable
   attr_reader :games, :teams, :game_teams
 
@@ -17,12 +17,21 @@ class Collection
     @game_teams ||= from_csv(game_teams_path, GameTeam)
   end
 
+  # we can add helper methods here for:
+  # find_home_wins
+  # find_visitor_wins
+  # find_tied_games
+  # games_by_season
+  #
+
   def find_team_by_id(id)
-    @teams.find do |team|
-      team.team_id == id
-    end
+    @teams.find { |team| team.team_id == id }
   end
-  
+
+  def games_by_season(season)
+    @games.group_by { |game| game.season }
+  end
+
   def find_games_for(team_id)
     @games.find_all do |game|
       game.away_team_id == team_id || game.home_team_id == team_id
@@ -70,7 +79,7 @@ class Collection
     end
   end
 
-  def results_by_season(team_id)
+  def team_results_by_season(team_id)
     games = find_games_for(team_id)
     games.reduce({}) do |acc, game|
       acc[game.season] ||= {won: 0, lost: 0, tied: 0}
@@ -82,14 +91,12 @@ class Collection
   end
 
   def win_percentage_by_season(team_id)
-    season_tallies = results_by_season(team_id)
+    season_tallies = team_results_by_season(team_id)
     season_tallies.reduce({}) do |acc, (season, tally_hash)|
       win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
       acc[season] = win_percentage
       acc
     end
   end
-
-
 
 end
