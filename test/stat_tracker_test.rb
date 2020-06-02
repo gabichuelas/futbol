@@ -276,20 +276,18 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_coach
-    skip
-    # game_path = './fixtures/games_fixture.csv'
-    # team_path = './fixtures/teams_fixture.csv'
-    # game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-    #
-    # locations = {
-    # games: game_path,
-    # teams: team_path,
-    # game_teams: game_teams_path
-    # }
-    #
-    # stat_tracker = StatTracker.from_csv(locations)
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
 
-    # Name of the Coach with the worst win percentage for the season	String
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
     assert_equal "John Tortorella", @stat_tracker.worst_coach("20122013")
   end
 
@@ -310,18 +308,27 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_least_accurate_team
-    skip
-    # Name of the Team with the worst ratio of shots to goals for the season	String
+    game_path = './fixtures/games_fixture.csv'
+    team_path = './fixtures/teams_fixture.csv'
+    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
+
+    locations = {
+    games: game_path,
+    teams: team_path,
+    game_teams: game_teams_path
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+
+    assert_equal "Houston Dynamo", stat_tracker.least_accurate_team("20122013")
   end
 
   def test_most_tackles
-    skip
-    # Name of the Team with the most tackles in the season	String
+    assert_equal "FC Dallas", @stat_tracker.most_tackles("20122013")
   end
 
   def test_fewest_tackles
-    skip
-    # Name of the Team with the fewest tackles in the season	String
+    assert_equal "Houston Dynamo", @stat_tracker.fewest_tackles("20122013")
   end
 
   # TEAM STATISTICS

@@ -184,34 +184,38 @@ class StatTracker
   end
 
   # SEASON STATISTICS
+  # season stats helper methods -------------------
   def season_games(season)
     games.find_all { |game| game.season == season }
   end
+  #-----------------------------
 
   def winningest_coach(season)
-    #season_games_by_id returns an array of just season game ids
     season_game_ids = season_games(season).map do |game|
       game.game_id
     end
 
-    #then find all games in game_teams from the above season
     season_game_teams = game_teams.find_all do |game|
       season_game_ids.include?(game.game_id)
     end
 
-    # filter season games by wins
-    season_wins = season_game_teams.find_all { |game| game.result == "WIN" }
+    game_teams_by_coach = season_game_teams.group_by do |game_team|
+      game_team.head_coach
+    end
 
-    # returns an array of coach name for each win
-    coach_wins = season_wins.map { |game| game.head_coach }
+    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
 
-    # creates a hash of number of season games won by coach
-    wins_by_coach = coach_wins.inject(Hash.new(0)) do |wins, coach|
-       wins[coach] += 1; wins
-     end
+    game_teams_by_coach.each do |coach, game_teams|
+      coach_games_and_wins[coach][:games] = game_teams.count
+      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
+    end
 
-    #return the winningest head_coach name as a string
-    coach_wins.max_by { |coach| wins_by_coach[coach] }
+    coach_win_percentage = {}
+    coach_games_and_wins.each do |coach, stats|
+      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
+    end
+
+    coach_win_percentage.max_by { |coach, record| record }[0]
   end
 
   def worst_coach(season)
@@ -219,23 +223,27 @@ class StatTracker
       game.game_id
     end
 
-    season_games = game_teams.find_all do |game|
-    season_game_ids.include?(game.game_id)
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
     end
 
-    season_losses = season_games.find_all do |game|
-    game.result == "LOSS"
+    game_teams_by_coach = season_game_teams.group_by do |game_team|
+      game_team.head_coach
     end
 
-    coach_losses = season_losses.map do |game|
-    game.head_coach
+    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
+
+    game_teams_by_coach.each do |coach, game_teams|
+      coach_games_and_wins[coach][:games] = game_teams.count
+      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
     end
 
-    losses_by_coach = coach_losses.inject(Hash.new(0)) do |losses, coach|
-       losses[coach] += 1; losses
-     end
+    coach_win_percentage = {}
+    coach_games_and_wins.each do |coach, stats|
+      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
+    end
 
-    coach_losses.max_by { |coach| losses_by_coach[coach] }
+    coach_win_percentage.min_by { |coach, record| record }[0]
   end
 
   def most_accurate_team(season)
@@ -243,12 +251,12 @@ class StatTracker
       game.game_id
     end
 
-    season_games = game_teams.find_all do |game|
+    season_game_teams = game_teams.find_all do |game|
       season_game_ids.include?(game.game_id)
     end
 
     season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    season_games.each do |game_team|
+    season_game_teams.each do |game_team|
       season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
       season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
     end
@@ -263,12 +271,68 @@ class StatTracker
     teams.find { |team| team.team_id == most_accurate_team_id }.team_name
   end
 
+  def least_accurate_team(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
 
-  # least_accurate_team(season)
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
 
-  # most_tackles(season)
+    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
+    season_game_teams.each do |game_team|
+      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
+      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
+    end
 
-  # fewest_tackles(season)
+    team_accuracy = {}
+    season_team_accuracy.each do |team_id, stats|
+      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
+    end
+
+    least_accurate_team_id = team_accuracy.min_by { |team_id, acc| acc }[0]
+
+    teams.find { |team| team.team_id == least_accurate_team_id }.team_name
+  end
+
+  def most_tackles(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
+
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
+
+    season_team_tackles = season_game_teams.inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
+
+    most_tackles_team_id = season_team_tackles.max_by { |team_id, tackles| tackles }[0]
+
+    teams.find { |team| team.team_id == most_tackles_team_id }.team_name
+  end
+
+  def fewest_tackles(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
+
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
+
+    season_team_tackles = season_game_teams.inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
+
+    fewest_tackles_team_id = season_team_tackles.min_by { |team_id, tackles| tackles }[0]
+
+    teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
+  end
 
   # TEAM STATISTICS
   # Uses helper methods from TeamStats module
