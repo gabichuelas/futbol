@@ -373,8 +373,12 @@ class StatTracker
     find_team_by_id(opp_id[0]).team_name
   end
 
-  def rival
-    # same as favorite_opponent but with max_by
+  def rival(team_id)
+    opp_id = win_percentage_by_opponent(team_id).max_by do |opponent, win_percentage|
+      win_percentage
+    end
+
+    find_team_by_id(opp_id[0]).team_name
   end
 
   # Helper Methods----------------------
@@ -400,7 +404,6 @@ class StatTracker
 
   def win_percentage_by_opponent(team_id)
     opp_tallies = results_by_opponent(team_id)
-    # require "pry"; binding.pry
     opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
       win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
       acc[opponent] = win_percentage

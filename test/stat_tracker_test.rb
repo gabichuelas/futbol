@@ -355,7 +355,14 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_rival_by_team
-    skip
+    locations = {
+      games: './fixtures/games_teamstats_fixture.csv',
+      teams: './fixtures/teams_teamstats_fixture.csv',
+      game_teams: './fixtures/game_teams_teamstats_fixture.csv'
+    }
+
+    stat_tracker = StatTracker.from_csv(locations)
+    assert_equal "FC Dallas", stat_tracker.rival("3")
   end
 
   # Helpers
