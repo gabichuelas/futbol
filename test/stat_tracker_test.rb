@@ -330,8 +330,8 @@ class StatTrackerTest < Minitest::Test
     assert_equal 0.57, stat_tracker.average_win_percentage("17")
   end
 
-  def test_can_get_favorite_opponent
-    skip
+  def test_can_get_favorite_opponent_for_given_team
+    # skip
     locations = {
       games: './fixtures/games_teamstats_fixture.csv',
       teams: './fixtures/teams_teamstats_fixture.csv',
@@ -342,9 +342,8 @@ class StatTrackerTest < Minitest::Test
     assert_equal "New England Revolution", stat_tracker.favorite_opponent("17")
   end
 
-  def test_can_get_favorite_opponent
-    skip
-    # DOES NOT PASS
+  def test_can_get_favorite_opponent_full_csv
+    # skip
     locations = {
       games: './data/games.csv',
       teams: './data/teams.csv',
@@ -356,8 +355,7 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_rival_by_team
-    # name of opponent that has the highest win percentage
-    # against the given team
+    skip
   end
 
   # Helpers
@@ -397,6 +395,6 @@ class StatTrackerTest < Minitest::Test
     assert_instance_of Hash, @stat_tracker.games_lost_by_season("3")
     assert_instance_of Game, @stat_tracker.games_lost_by_season("3").values[0][0]
   end
-  
+
 
 end

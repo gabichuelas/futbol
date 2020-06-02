@@ -366,34 +366,49 @@ class StatTracker
   end
 
   def favorite_opponent(team_id)
-  
-    games_lost_ids = game_ids_by(team_id, "LOSS")
-
-    opponent_wins = game_teams.find_all do |game_team|
-      games_lost_ids.include?(game_team.game_id) && game_team.team_id != team_id
+    opp_id = win_percentage_by_opponent(team_id).min_by do |opponent, win_percentage|
+      win_percentage
     end
 
-    opp_wins_by_team = opponent_wins.group_by do |game_team|
-      game_team.team_id
-    end
-
-    opp_team_win_count = opp_wins_by_team.reduce({}) do |acc, (team, game_teams)|
-      total_games = total_games_by(team)
-      acc[team] = game_teams.count.fdiv(total_games)
-      acc
-    end
-
-    fav_opponent = opp_team_win_count.min_by do |team, avg_win_percentage|
-      avg_win_percentage
-    end
-
-    team_info(fav_opponent[0])["team_name"]
+    find_team_by_id(opp_id[0]).team_name
   end
 
   def rival
+    # same as favorite_opponent but with max_by
   end
 
   # Helper Methods----------------------
+
+  def find_games_for(team_id)
+    @games.find_all do |game|
+      game.away_team_id == team_id || game.home_team_id == team_id
+    end
+  end
+
+  def results_by_opponent(team_id)
+    games = find_games_for(team_id)
+
+    games.reduce({}) do |acc, game|
+      opponent = game.opponent(team_id)
+      acc[opponent] ||= {won: 0, lost: 0, tied: 0}
+      acc[opponent][:won] += 1 if game.winner == opponent
+      acc[opponent][:lost] += 1 if game.loser == opponent
+      acc[opponent][:tied] += 1 if game.result == :tie
+      acc
+    end
+  end
+
+  def win_percentage_by_opponent(team_id)
+    opp_tallies = results_by_opponent(team_id)
+    # require "pry"; binding.pry
+    opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
+      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
+      acc[opponent] = win_percentage
+      acc
+    end
+  end
+
+  # -------------------------------------
 
   def game_teams_by(team_id)
     # returns matching GameTeams

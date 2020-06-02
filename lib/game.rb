@@ -43,4 +43,12 @@ class Game
     end
   end
 
+  def opponent(team_id)
+    if @home_team_id == team_id
+      @away_team_id
+    else
+      @home_team_id
+    end
+  end
+
 end
