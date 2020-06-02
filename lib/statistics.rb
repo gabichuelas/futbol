@@ -21,14 +21,12 @@ class Statistics
   # find_home_wins
   # find_visitor_wins
   # find_tied_games
-  # games_by_season
-  #
 
   def find_team_by_id(id)
     @teams.find { |team| team.team_id == id }
   end
 
-  def games_by_season(season)
+  def games_by_season
     @games.group_by { |game| game.season }
   end
 

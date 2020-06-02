@@ -54,11 +54,7 @@ class StatTracker < Statistics
   end
 
   def count_of_games_by_season
-    all_games_by_season_id = @games.group_by do |game|
-      game.season
-    end
-
-    all_games_by_season_id.reduce({}) do |season_games, (season, games)|
+    games_by_season.reduce({}) do |season_games, (season, games)|
       season_games[season] = games.count
       season_games
     end
