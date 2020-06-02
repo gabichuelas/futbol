@@ -307,14 +307,30 @@ class StatTracker
       team_tackles[game_team.team_id] += game_team.tackles.to_i
       team_tackles
     end
-    
+
     most_tackles_team_id = season_team_tackles.max_by { |team_id, tackles| tackles }[0]
 
     teams.find { |team| team.team_id == most_tackles_team_id }.team_name
   end
 
-  # fewest_tackles(season)
+  def fewest_tackles(season)
+    season_game_ids = season_games(season).map do |game|
+      game.game_id
+    end
 
+    season_game_teams = game_teams.find_all do |game|
+      season_game_ids.include?(game.game_id)
+    end
+
+    season_team_tackles = season_game_teams.inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
+
+    fewest_tackles_team_id = season_team_tackles.min_by { |team_id, tackles| tackles }[0]
+
+    teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
+  end
 
   # TEAM STATISTICS
 
