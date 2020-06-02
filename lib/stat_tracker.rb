@@ -13,9 +13,9 @@ class StatTracker
     teams_path = stat_tracker_params[:teams]
     game_teams_path = stat_tracker_params[:game_teams]
 
-    @games = from_csv(games_path, Game)
-    @teams = from_csv(teams_path, Team)
-    @game_teams = from_csv(game_teams_path, GameTeam)
+    @games ||= from_csv(games_path, Game)
+    @teams ||= from_csv(teams_path, Team)
+    @game_teams ||= from_csv(game_teams_path, GameTeam)
   end
 
   def self.from_csv(stat_tracker_params)
@@ -308,13 +308,50 @@ class StatTracker
     end.min
   end
 
-  def favorite_opponent
+  def favorite_opponent(team_id)
+    opp_id = win_percentage_by_opponent(team_id).min_by do |opponent, win_percentage|
+      win_percentage
+    end
+
+    find_team_by_id(opp_id[0]).team_name
   end
 
   def rival
+    # same as favorite_opponent but with max_by
   end
 
   # Helper Methods----------------------
+
+  def find_games_for(team_id)
+    @games.find_all do |game|
+      game.away_team_id == team_id || game.home_team_id == team_id
+    end
+  end
+
+  def results_by_opponent(team_id)
+    games = find_games_for(team_id)
+
+    games.reduce({}) do |acc, game|
+      opponent = game.opponent(team_id)
+      acc[opponent] ||= {won: 0, lost: 0, tied: 0}
+      acc[opponent][:won] += 1 if game.winner == opponent
+      acc[opponent][:lost] += 1 if game.loser == opponent
+      acc[opponent][:tied] += 1 if game.result == :tie
+      acc
+    end
+  end
+
+  def win_percentage_by_opponent(team_id)
+    opp_tallies = results_by_opponent(team_id)
+    # require "pry"; binding.pry
+    opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
+      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
+      acc[opponent] = win_percentage
+      acc
+    end
+  end
+
+  # -------------------------------------
 
   def game_teams_by(team_id)
     # returns matching GameTeams
