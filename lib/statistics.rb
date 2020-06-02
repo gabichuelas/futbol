@@ -1,4 +1,36 @@
-module TeamStats
+require_relative './readable'
+require_relative './game'
+require_relative './team'
+require_relative './game_team'
+
+class Statistics
+  include Readable
+  attr_reader :games, :teams, :game_teams
+
+  def initialize(stat_tracker_params)
+    games_path = stat_tracker_params[:games]
+    teams_path = stat_tracker_params[:teams]
+    game_teams_path = stat_tracker_params[:game_teams]
+
+    @games ||= from_csv(games_path, Game)
+    @teams ||= from_csv(teams_path, Team)
+    @game_teams ||= from_csv(game_teams_path, GameTeam)
+  end
+
+  # we can add helper methods here for:
+  # find_home_wins
+  # find_visitor_wins
+  # find_tied_games
+  # games_by_season
+  #
+
+  def find_team_by_id(id)
+    @teams.find { |team| team.team_id == id }
+  end
+
+  def games_by_season(season)
+    @games.group_by { |game| game.season }
+  end
 
   def find_games_for(team_id)
     @games.find_all do |game|
@@ -47,7 +79,7 @@ module TeamStats
     end
   end
 
-  def results_by_season(team_id)
+  def team_results_by_season(team_id)
     games = find_games_for(team_id)
     games.reduce({}) do |acc, game|
       acc[game.season] ||= {won: 0, lost: 0, tied: 0}
@@ -59,12 +91,12 @@ module TeamStats
   end
 
   def win_percentage_by_season(team_id)
-    season_tallies = results_by_season(team_id)
+    season_tallies = team_results_by_season(team_id)
     season_tallies.reduce({}) do |acc, (season, tally_hash)|
       win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
       acc[season] = win_percentage
       acc
     end
   end
-  
+
 end

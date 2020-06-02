@@ -1,23 +1,9 @@
-require_relative './readable'
-require_relative './team_stats_module'
-require_relative './game'
-require_relative './team'
-require_relative './game_team'
+require_relative './statistics'
 
-class StatTracker
-  include Readable
-  include TeamStats
-
-  attr_reader :games, :teams, :game_teams
+class StatTracker < Statistics
 
   def initialize(stat_tracker_params)
-    games_path = stat_tracker_params[:games]
-    teams_path = stat_tracker_params[:teams]
-    game_teams_path = stat_tracker_params[:game_teams]
-
-    @games ||= from_csv(games_path, Game)
-    @teams ||= from_csv(teams_path, Team)
-    @game_teams ||= from_csv(game_teams_path, GameTeam)
+    super(stat_tracker_params)
   end
 
   def self.from_csv(stat_tracker_params)
@@ -105,12 +91,6 @@ class StatTracker
   # LEAGUE STATISTICS
   def count_of_teams
     teams.count
-  end
-
-  def find_team_by_id(id)
-    @teams.find do |team|
-      team.team_id == id
-    end
   end
 
   def sort_scores_by_team(game_teams_collection)
@@ -335,26 +315,21 @@ class StatTracker
   end
 
   # TEAM STATISTICS
-  # Uses helper methods from TeamStats module
 
   def team_info(id)
-    teams.find do |team|
-      team.team_id == id
-    end.info
+    find_team_by_id(id).info
   end
 
   def best_season(team_id)
-    best_season = win_percentage_by_season(team_id).max_by do |season, percentage|
+    win_percentage_by_season(team_id).max_by do |season, percentage|
       percentage
-    end
-    best_season[0]
+    end[0]
   end
 
   def worst_season(team_id)
-    worst_season = win_percentage_by_season(team_id).min_by do |season, percentage|
+    win_percentage_by_season(team_id).min_by do |season, percentage|
       percentage
-    end
-    worst_season[0]
+    end[0]
   end
 
   def average_win_percentage(team_id)
