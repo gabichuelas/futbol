@@ -94,7 +94,7 @@ class StatTracker
     all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
       total_goals = 0
       games.each do |game|
-        total_goals += game.away_goals.to_f + game.home_goals.to_f
+        total_goals += game.total_goals
       end
 
       games_by_season[season] = (total_goals / games.count.to_f).round(2)
