@@ -34,37 +34,32 @@ class StatTracker
     games.min_by { |game| game.total_goals }.total_goals
   end
 
-  def find_home_wins
+
+  def find_game_teams_by_hoa_and_result(hoa, result)
     game_teams.find_all do |game_team|
-      game_team.hoa == "home" && game_team.result == "WIN"
+      # require 'pry';binding.pry
+      game_team.hoa == hoa && game_team.result == result
     end
   end
 
   def percentage_home_wins
-    percentage = find_home_wins.count.fdiv(game_teams.count / 2)
-    percentage.round(2)
-  end
-
-  def find_visitor_wins
-    game_teams.find_all do |game_team|
-      game_team.hoa == "away" && game_team.result == "WIN"
-    end
+    home_wins = find_game_teams_by_hoa_and_result("home", "WIN")
+    (home_wins.count.fdiv(game_teams.count / 2)).round(2)
   end
 
   def percentage_visitor_wins
-    percentage = find_visitor_wins.count.fdiv(game_teams.count / 2)
-    percentage.round(2)
+    away_wins = find_game_teams_by_hoa_and_result("away", "WIN")
+    (away_wins.count.fdiv(game_teams.count / 2)).round(2)
   end
 
   def find_tied_games
     games.find_all do |game|
-      game.away_goals == game.home_goals
+      game.result == :tie
     end
   end
 
   def percentage_ties
-    percentage = find_tied_games.count.fdiv(games.count)
-    percentage.round(2)
+    (find_tied_games.count.fdiv(games.count)).round(2)
   end
 
   def count_of_games_by_season
