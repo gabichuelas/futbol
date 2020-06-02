@@ -63,7 +63,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_find_game_teams_by_hoa_and_result
-    # assert_instance_of Array, @stat_tracker.find_game_teams_by_hoa_and_result
     assert_equal 2, @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").count
     assert_equal 1, @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").count
   end

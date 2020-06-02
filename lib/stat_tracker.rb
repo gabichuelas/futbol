@@ -37,7 +37,6 @@ class StatTracker
 
   def find_game_teams_by_hoa_and_result(hoa, result)
     game_teams.find_all do |game_team|
-      # require 'pry';binding.pry
       game_team.hoa == hoa && game_team.result == result
     end
   end
