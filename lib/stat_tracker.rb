@@ -450,13 +450,4 @@ class StatTracker
     end
   end
 
-  # def loss_percentage_by_season(team_id)
-  #   season_tallies = results_by_season(team_id)
-  #   season_tallies.reduce({}) do |acc, (season, tally_hash)|
-  #     loss_percentage = tally_hash[:lost].fdiv(tally_hash.values.sum)
-  #     acc[season] = loss_percentage
-  #     acc
-  #   end
-  # end
-
 end
