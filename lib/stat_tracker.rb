@@ -199,6 +199,14 @@ class StatTracker < Statistics
     end
     team_accuracy
   end
+
+  def team_tackles(season)
+    season_game_teams(season).inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
+  end
+
   #-----------------------------
 
   def winningest_coach(season)
@@ -215,65 +223,17 @@ class StatTracker < Statistics
   end
 
   def least_accurate_team(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
-    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    season_game_teams.each do |game_team|
-      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
-      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
-    end
-
-    team_accuracy = {}
-    season_team_accuracy.each do |team_id, stats|
-      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
-    end
-
-    least_accurate_team_id = team_accuracy.min_by { |team_id, acc| acc }[0]
-
+    least_accurate_team_id = team_accuracy(season).min_by { |team_id, acc| acc }[0]
     teams.find { |team| team.team_id == least_accurate_team_id }.team_name
   end
 
   def most_tackles(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
-    season_team_tackles = season_game_teams.inject(Hash.new(0)) do |team_tackles, game_team|
-      team_tackles[game_team.team_id] += game_team.tackles.to_i
-      team_tackles
-    end
-
-    most_tackles_team_id = season_team_tackles.max_by { |team_id, tackles| tackles }[0]
-
+    most_tackles_team_id = team_tackles(season).max_by { |team_id, tackles| tackles }[0]
     teams.find { |team| team.team_id == most_tackles_team_id }.team_name
   end
 
   def fewest_tackles(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
-    season_team_tackles = season_game_teams.inject(Hash.new(0)) do |team_tackles, game_team|
-      team_tackles[game_team.team_id] += game_team.tackles.to_i
-      team_tackles
-    end
-
-    fewest_tackles_team_id = season_team_tackles.min_by { |team_id, tackles| tackles }[0]
-
+    fewest_tackles_team_id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
     teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
   end
 
