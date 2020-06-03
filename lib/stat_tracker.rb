@@ -63,22 +63,14 @@ class StatTracker < Statistics
   end
 
   def average_goals_by_season
-    all_games_by_season_id = @games.group_by do |game|
-      game.season
-    end
-
-    all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
-      total_goals = 0
-      games.each do |game|
-        total_goals += game.total_goals
-      end
-
-      games_by_season[season] = (total_goals / games.count.to_f).round(2)
-      games_by_season
+    games_by_season.reduce({}) do |acc, (season, games)|
+      acc[season] = total_goals(games).fdiv(games.count).round(2)
+      acc
     end
   end
 
   # LEAGUE STATISTICS
+  
   def count_of_teams
     teams.count
   end
