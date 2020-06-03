@@ -160,6 +160,33 @@ class StatTracker < Statistics
   end
 
   # SEASON STATISTICS
+  def winningest_coach(season)
+    coach_win_percentage(season).max_by { |coach, record| record }[0]
+  end
+
+  def worst_coach(season)
+    coach_win_percentage(season).min_by { |coach, record| record }[0]
+  end
+
+  def most_accurate_team(season)
+    most_accurate_team_id = team_accuracy(season).max_by { |team_id, acc| acc }[0]
+    teams.find { |team| team.team_id == most_accurate_team_id }.team_name
+  end
+
+  def least_accurate_team(season)
+    least_accurate_team_id = team_accuracy(season).min_by { |team_id, acc| acc }[0]
+    teams.find { |team| team.team_id == least_accurate_team_id }.team_name
+  end
+
+  def most_tackles(season)
+    most_tackles_team_id = team_tackles(season).max_by { |team_id, tackles| tackles }[0]
+    teams.find { |team| team.team_id == most_tackles_team_id }.team_name
+  end
+
+  def fewest_tackles(season)
+    fewest_tackles_team_id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
+    teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
+  end
   # season stats helper methods -------------------
   def season_games(season)
     games.find_all { |game| game.season == season }
@@ -207,38 +234,7 @@ class StatTracker < Statistics
     end
   end
 
-  #-----------------------------
-
-  def winningest_coach(season)
-    coach_win_percentage(season).max_by { |coach, record| record }[0]
-  end
-
-  def worst_coach(season)
-    coach_win_percentage(season).min_by { |coach, record| record }[0]
-  end
-
-  def most_accurate_team(season)
-    most_accurate_team_id = team_accuracy(season).max_by { |team_id, acc| acc }[0]
-    teams.find { |team| team.team_id == most_accurate_team_id }.team_name
-  end
-
-  def least_accurate_team(season)
-    least_accurate_team_id = team_accuracy(season).min_by { |team_id, acc| acc }[0]
-    teams.find { |team| team.team_id == least_accurate_team_id }.team_name
-  end
-
-  def most_tackles(season)
-    most_tackles_team_id = team_tackles(season).max_by { |team_id, tackles| tackles }[0]
-    teams.find { |team| team.team_id == most_tackles_team_id }.team_name
-  end
-
-  def fewest_tackles(season)
-    fewest_tackles_team_id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
-    teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
-  end
-
   # TEAM STATISTICS
-
   def team_info(id)
     find_team_by_id(id).info
   end
