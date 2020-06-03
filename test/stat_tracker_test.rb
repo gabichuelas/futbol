@@ -64,7 +64,16 @@ class StatTrackerTest < Minitest::Test
 
   def test_find_game_teams_by_hoa_and_result
     assert_equal 2, @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").count
+    @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").each do |game_team|
+      assert_equal "home", game_team.hoa
+      assert_equal "WIN", game_team.result
+    end
+
     assert_equal 1, @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").count
+    @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").each do |game_team|
+      assert_equal "away", game_team.hoa
+      assert_equal "WIN", game_team.result
+    end
   end
 
   def test_home_wins_percentage

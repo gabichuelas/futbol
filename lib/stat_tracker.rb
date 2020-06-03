@@ -59,7 +59,7 @@ class StatTracker < Statistics
   end
 
   def average_goals_per_game
-    (find_all_games_total_score / games.count.to_f).round(2)
+    (find_all_games_total_score.fdiv(games.count)).round(2)
   end
 
   def average_goals_by_season
@@ -70,7 +70,7 @@ class StatTracker < Statistics
     all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
       total_goals = 0
       games.each do |game|
-        total_goals += game.away_goals.to_f + game.home_goals.to_f
+        total_goals += game.total_goals
       end
 
       games_by_season[season] = (total_goals / games.count.to_f).round(2)
@@ -99,15 +99,13 @@ class StatTracker < Statistics
     avgs_by_team
   end
 
-  def team_with_highest_average_score(team_averages) # better name??
+  def team_with_highest_average_score(team_averages)
     team_averages.max_by { |_team, avg_score| avg_score }.first
   end
 
-  def team_with_lowest_average_score(team_averages) # ^^
+  def team_with_lowest_average_score(team_averages)
     team_averages.min_by { |_team, avg_score| avg_score }.first
   end
-
-  # consider combining above two methods taking an addtl arg for max_by or min_by
 
   def best_offense
     team_avgs = team_averages(sort_scores_by_team(@game_teams))
