@@ -164,75 +164,41 @@ class StatTracker < Statistics
   def season_games(season)
     games.find_all { |game| game.season == season }
   end
+
+  def season_game_teams(season)
+    season_game_ids = season_games(season).map { |game| game.game_id }
+    game_teams.find_all { |game| season_game_ids.include?(game.game_id) }
+  end
+
+  def coach_win_percentage(season)
+    game_teams_by_coach = season_game_teams(season).group_by { |game_team| game_team.head_coach }
+
+    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
+    game_teams_by_coach.each do |coach, game_teams|
+      coach_games_and_wins[coach][:games] = game_teams.count
+      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
+    end
+
+    coach_win_percentage = {}
+    coach_games_and_wins.each do |coach, stats|
+      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
+    end
+    coach_win_percentage
+  end
+
   #-----------------------------
 
   def winningest_coach(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
-    game_teams_by_coach = season_game_teams.group_by do |game_team|
-      game_team.head_coach
-    end
-
-    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
-
-    game_teams_by_coach.each do |coach, game_teams|
-      coach_games_and_wins[coach][:games] = game_teams.count
-      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
-    end
-
-    coach_win_percentage = {}
-    coach_games_and_wins.each do |coach, stats|
-      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
-    end
-
-    coach_win_percentage.max_by { |coach, record| record }[0]
+    coach_win_percentage(season).max_by { |coach, record| record }[0]
   end
 
   def worst_coach(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
-    game_teams_by_coach = season_game_teams.group_by do |game_team|
-      game_team.head_coach
-    end
-
-    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
-
-    game_teams_by_coach.each do |coach, game_teams|
-      coach_games_and_wins[coach][:games] = game_teams.count
-      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
-    end
-
-    coach_win_percentage = {}
-    coach_games_and_wins.each do |coach, stats|
-      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
-    end
-
-    coach_win_percentage.min_by { |coach, record| record }[0]
+    coach_win_percentage(season).min_by { |coach, record| record }[0]
   end
 
   def most_accurate_team(season)
-    season_game_ids = season_games(season).map do |game|
-      game.game_id
-    end
-
-    season_game_teams = game_teams.find_all do |game|
-      season_game_ids.include?(game.game_id)
-    end
-
     season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    season_game_teams.each do |game_team|
+    season_game_teams(season).each do |game_team|
       season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
       season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
     end
