@@ -263,13 +263,16 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_coach_win_percentage
-
     expected = {
       "John Tortorella" => 0.0,
       "Claude Julien" => 1.0
     }
-
+    
     assert_equal expected, @stat_tracker.coach_win_percentage("20122013")
+  end
+
+  def test_team_accuracy
+    assert_equal nil, @stat_tracker.team_accuracy(season)
   end
 
   def test_winningest_coach
