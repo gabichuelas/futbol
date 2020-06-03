@@ -30,6 +30,12 @@ class Statistics
     @games.group_by { |game| game.season }
   end
 
+  def total_goals(games_array)
+    games_array.reduce(0) do |goals, game|
+      goals += game.total_goals
+    end
+  end
+
   def find_games_for(team_id)
     @games.find_all do |game|
       game.away_team_id == team_id || game.home_team_id == team_id
