@@ -20,7 +20,6 @@ class StatTracker < Statistics
     games.min_by { |game| game.total_goals }.total_goals
   end
 
-
   def find_game_teams_by_hoa_and_result(hoa, result)
     game_teams.find_all do |game_team|
       game_team.hoa == hoa && game_team.result == result
@@ -70,7 +69,7 @@ class StatTracker < Statistics
   end
 
   # LEAGUE STATISTICS
-  
+
   def count_of_teams
     teams.count
   end
@@ -171,35 +170,29 @@ class StatTracker < Statistics
     fewest_tackles_team_id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
     teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
   end
-  # season stats helper methods -------------------
-  def season_games(season)
-    games.find_all { |game| game.season == season }
-  end
 
-  def season_game_teams(season)
-    season_game_ids = season_games(season).map { |game| game.game_id }
-    game_teams.find_all { |game| season_game_ids.include?(game.game_id) }
+  # season stats helper methods ------------------
+
+  def coach_stats(season)
+    game_teams_by_coach(season).reduce({}) do |acc, (coach, game_teams)|
+      wins = game_teams.find_all {|game| game.result == "WIN"}.count
+      acc[coach] ||= {wins: 0, games: 0}
+      acc[coach][:wins] = wins
+      acc[coach][:games] = game_teams.count
+      acc
+    end
   end
 
   def coach_win_percentage(season)
-    game_teams_by_coach = season_game_teams(season).group_by { |game_team| game_team.head_coach }
-
-    coach_games_and_wins = Hash.new { |h,k| h[k] = Hash.new(0) }
-    game_teams_by_coach.each do |coach, game_teams|
-      coach_games_and_wins[coach][:games] = game_teams.count
-      coach_games_and_wins[coach][:wins] = game_teams.find_all { |game| game.result == "WIN"}.count
+    coach_stats(season).reduce({}) do |acc, (coach, stats)|
+      acc[coach] = stats[:wins].fdiv(stats[:games])
+      acc
     end
-
-    coach_win_percentage = {}
-    coach_games_and_wins.each do |coach, stats|
-      coach_win_percentage[coach] = stats[:wins].fdiv(stats[:games])
-    end
-    coach_win_percentage
   end
 
   def team_accuracy(season)
     season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    season_game_teams(season).each do |game_team|
+    game_teams_by_season(season).each do |game_team|
       season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
       season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
     end
@@ -212,7 +205,7 @@ class StatTracker < Statistics
   end
 
   def team_tackles(season)
-    season_game_teams(season).inject(Hash.new(0)) do |team_tackles, game_team|
+    game_teams_by_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
       team_tackles[game_team.team_id] += game_team.tackles.to_i
       team_tackles
     end

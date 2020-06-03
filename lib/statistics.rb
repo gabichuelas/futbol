@@ -22,18 +22,27 @@ class Statistics
   # find_visitor_wins
   # find_tied_games
 
-  def find_team_by_id(id)
-    @teams.find { |team| team.team_id == id }
-  end
-
   def games_by_season
     @games.group_by { |game| game.season }
+  end
+
+  def game_teams_by_season(season)
+    season_game_ids = games_by_season[season].map { |game| game.game_id }
+    @game_teams.find_all { |game| season_game_ids.include?(game.game_id) }
+  end
+
+  def game_teams_by_coach(season)
+    game_teams_by_season(season).group_by { |game_team| game_team.head_coach }
   end
 
   def total_goals(games_array)
     games_array.reduce(0) do |goals, game|
       goals += game.total_goals
     end
+  end
+
+  def find_team_by_id(id)
+    @teams.find { |team| team.team_id == id }
   end
 
   def find_games_for(team_id)
