@@ -257,6 +257,21 @@ class StatTrackerTest < Minitest::Test
     assert_equal 5, @stat_tracker.season_games("20122013").count
   end
 
+  def test_it_finds_season_game_teams
+    assert_instance_of Array, @stat_tracker.season_game_teams("20122013")
+    assert_equal 5, @stat_tracker.season_games("20122013").count
+  end
+
+  def test_coach_win_percentage
+
+    expected = {
+      "John Tortorella" => 0.0,
+      "Claude Julien" => 1.0
+    }
+
+    assert_equal expected, @stat_tracker.coach_win_percentage("20122013")
+  end
+
   def test_winningest_coach
     game_path = './fixtures/games_fixture.csv'
     team_path = './fixtures/teams_fixture.csv'
