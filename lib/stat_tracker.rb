@@ -29,12 +29,12 @@ class StatTracker < Statistics
 
   def percentage_home_wins
     home_wins = find_game_teams_by_hoa_and_result("home", "WIN")
-    (home_wins.count.fdiv(game_teams.count / 2)).round(2)
+    (home_wins.count.fdiv(games.count).round(2)
   end
 
   def percentage_visitor_wins
     away_wins = find_game_teams_by_hoa_and_result("away", "WIN")
-    (away_wins.count.fdiv(game_teams.count / 2)).round(2)
+    (away_wins.count.fdiv(games.count).round(2)
   end
 
   def find_tied_games
@@ -59,7 +59,7 @@ class StatTracker < Statistics
   end
 
   def average_goals_per_game
-    (find_all_games_total_score / games.count.to_f).round(2)
+    (find_all_games_total_score.fdiv(games.count)).round(2)
   end
 
   def average_goals_by_season
