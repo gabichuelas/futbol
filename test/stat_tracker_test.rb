@@ -62,18 +62,13 @@ class StatTrackerTest < Minitest::Test
     assert_equal 3, @stat_tracker.lowest_total_score
   end
 
-  def test_find_home_wins
-    assert_instance_of Array, @stat_tracker.find_home_wins
-    assert_equal 2, @stat_tracker.find_home_wins.count
+  def test_find_game_teams_by_hoa_and_result
+    assert_equal 2, @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").count
+    assert_equal 1, @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").count
   end
 
   def test_home_wins_percentage
     assert_equal 0.67, @stat_tracker.percentage_home_wins
-  end
-
-  def test_find_visitor_wins
-    assert_instance_of Array, @stat_tracker.find_visitor_wins
-    assert_equal 1, @stat_tracker.find_visitor_wins.count
   end
 
   def test_away_wins_percentage
