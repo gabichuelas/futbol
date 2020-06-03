@@ -273,9 +273,17 @@ class StatTrackerTest < Minitest::Test
   def test_team_accuracy
     expected = {
       "3"=>0.21739130434782608,
-       "6"=>0.2857142857142857
+      "6"=>0.2857142857142857
     }
     assert_equal expected, @stat_tracker.team_accuracy("20122013")
+  end
+
+  def test_team_tackles
+    expected = {
+      "3"=>114,
+      "6"=>115
+    }
+    assert_equal expected, @stat_tracker.team_tackles("20122013")
   end
 
   def test_winningest_coach
