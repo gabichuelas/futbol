@@ -186,6 +186,19 @@ class StatTracker < Statistics
     coach_win_percentage
   end
 
+  def team_accuracy(season)
+    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
+    season_game_teams(season).each do |game_team|
+      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
+      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
+    end
+
+    team_accuracy = {}
+    season_team_accuracy.each do |team_id, stats|
+      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
+    end
+    team_accuracy
+  end
   #-----------------------------
 
   def winningest_coach(season)
@@ -197,19 +210,7 @@ class StatTracker < Statistics
   end
 
   def most_accurate_team(season)
-    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    season_game_teams(season).each do |game_team|
-      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
-      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
-    end
-
-    team_accuracy = {}
-    season_team_accuracy.each do |team_id, stats|
-      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
-    end
-
-    most_accurate_team_id = team_accuracy.max_by { |team_id, acc| acc }[0]
-
+    most_accurate_team_id = team_accuracy(season).max_by { |team_id, acc| acc }[0]
     teams.find { |team| team.team_id == most_accurate_team_id }.team_name
   end
 
