@@ -29,12 +29,12 @@ class StatTracker < Statistics
 
   def percentage_home_wins
     home_wins = find_game_teams_by_hoa_and_result("home", "WIN")
-    (home_wins.count.fdiv(games.count).round(2)
+    (home_wins.count.fdiv(game_teams.count / 2)).round(2)
   end
 
   def percentage_visitor_wins
     away_wins = find_game_teams_by_hoa_and_result("away", "WIN")
-    (away_wins.count.fdiv(games.count).round(2)
+    (away_wins.count.fdiv(game_teams.count / 2)).round(2)
   end
 
   def find_tied_games
@@ -70,7 +70,7 @@ class StatTracker < Statistics
     all_games_by_season_id.reduce({}) do |games_by_season, (season, games)|
       total_goals = 0
       games.each do |game|
-        total_goals += game.away_goals.to_f + game.home_goals.to_f
+        total_goals += game.total_goals
       end
 
       games_by_season[season] = (total_goals / games.count.to_f).round(2)
