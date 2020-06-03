@@ -99,15 +99,13 @@ class StatTracker < Statistics
     avgs_by_team
   end
 
-  def team_with_highest_average_score(team_averages) # better name??
+  def team_with_highest_average_score(team_averages)
     team_averages.max_by { |_team, avg_score| avg_score }.first
   end
 
-  def team_with_lowest_average_score(team_averages) # ^^
+  def team_with_lowest_average_score(team_averages)
     team_averages.min_by { |_team, avg_score| avg_score }.first
   end
-
-  # consider combining above two methods taking an addtl arg for max_by or min_by
 
   def best_offense
     team_avgs = team_averages(sort_scores_by_team(@game_teams))
