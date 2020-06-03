@@ -27,30 +27,19 @@ class StatTracker < Statistics
   end
 
   def percentage_home_wins
-    home_wins = find_game_teams_by_hoa_and_result("home", "WIN")
-    (home_wins.count.fdiv(game_teams.count / 2)).round(2)
+    game_results[:home_win].count.fdiv(@games.count).round(2)
   end
 
   def percentage_visitor_wins
-    away_wins = find_game_teams_by_hoa_and_result("away", "WIN")
-    (away_wins.count.fdiv(game_teams.count / 2)).round(2)
-  end
-
-  def find_tied_games
-    games.find_all do |game|
-      game.result == :tie
-    end
+    game_results[:away_win].count.fdiv(@games.count).round(2)
   end
 
   def percentage_ties
-    (find_tied_games.count.fdiv(games.count)).round(2)
+    game_results[:tie].count.fdiv(@games.count).round(2)
   end
 
   def count_of_games_by_season
-    games_by_season.reduce({}) do |season_games, (season, games)|
-      season_games[season] = games.count
-      season_games
-    end
+    games_by_season.transform_values { |games| games.count }
   end
 
   def find_all_games_total_score
@@ -62,16 +51,15 @@ class StatTracker < Statistics
   end
 
   def average_goals_by_season
-    games_by_season.reduce({}) do |acc, (season, games)|
-      acc[season] = total_goals(games).fdiv(games.count).round(2)
-      acc
+    games_by_season.transform_values do |games|
+      total_goals(games).fdiv(games.count).round(2)
     end
   end
 
   # LEAGUE STATISTICS
 
   def count_of_teams
-    teams.count
+    @teams.count
   end
 
   def sort_scores_by_team(game_teams_collection)
@@ -83,11 +71,10 @@ class StatTracker < Statistics
   end
 
   def team_averages(sorted_team_scores)
-    avgs_by_team = {}
-    sorted_team_scores.each do |team, scores_array|
-      avgs_by_team[team] = (scores_array.sum / scores_array.count.to_f)
+    sorted_team_scores.reduce({}) do |acc, (team, scores_array)|
+      acc[team] = (scores_array.sum / scores_array.count.to_f)
+      acc
     end
-    avgs_by_team
   end
 
   def team_with_highest_average_score(team_averages)
@@ -152,23 +139,23 @@ class StatTracker < Statistics
   end
 
   def most_accurate_team(season)
-    most_accurate_team_id = team_accuracy(season).max_by { |team_id, acc| acc }[0]
-    teams.find { |team| team.team_id == most_accurate_team_id }.team_name
+    id = team_accuracy(season).max_by { |team_id, acc| acc }[0]
+    find_team_by_id(id).team_name
   end
 
   def least_accurate_team(season)
-    least_accurate_team_id = team_accuracy(season).min_by { |team_id, acc| acc }[0]
-    teams.find { |team| team.team_id == least_accurate_team_id }.team_name
+    id = team_accuracy(season).min_by { |team_id, acc| acc }[0]
+    find_team_by_id(id).team_name
   end
 
   def most_tackles(season)
-    most_tackles_team_id = team_tackles(season).max_by { |team_id, tackles| tackles }[0]
-    teams.find { |team| team.team_id == most_tackles_team_id }.team_name
+    id = team_tackles(season).max_by { |team_id, tackles| tackles }[0]
+    find_team_by_id(id).team_name
   end
 
   def fewest_tackles(season)
-    fewest_tackles_team_id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
-    teams.find { |team| team.team_id == fewest_tackles_team_id }.team_name
+    id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
+    find_team_by_id(id).team_name
   end
 
   # season stats helper methods ------------------
@@ -190,18 +177,20 @@ class StatTracker < Statistics
     end
   end
 
-  def team_accuracy(season)
-    season_team_accuracy = Hash.new { |h,k| h[k] = Hash.new(0) }
-    game_teams_by_season(season).each do |game_team|
-      season_team_accuracy[game_team.team_id][:shots] += game_team.shots.to_i
-      season_team_accuracy[game_team.team_id][:goals] += game_team.goals.to_i
+  def team_goal_stats(season)
+    game_teams_by_season(season).reduce({}) do |acc, game_team|
+      acc[game_team.team_id] ||= { shots: 0, goals: 0 }
+      acc[game_team.team_id][:shots] += game_team.shots.to_i
+      acc[game_team.team_id][:goals] += game_team.goals.to_i
+      acc
     end
+  end
 
-    team_accuracy = {}
-    season_team_accuracy.each do |team_id, stats|
-      team_accuracy[team_id] = stats[:goals].fdiv(stats[:shots])
+  def team_accuracy(season)
+    team_goal_stats(season).reduce({}) do |acc, (team_id, stats)|
+      acc[team_id] = stats[:goals].fdiv(stats[:shots])
+      acc
     end
-    team_accuracy
   end
 
   def team_tackles(season)

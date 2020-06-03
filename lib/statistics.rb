@@ -21,6 +21,9 @@ class Statistics
   # find_home_wins
   # find_visitor_wins
   # find_tied_games
+  def game_results
+    @games.group_by { |game| game.result }
+  end
 
   def games_by_season
     @games.group_by { |game| game.season }
@@ -104,12 +107,15 @@ class Statistics
   end
 
   def win_percentage_by_season(team_id)
-    season_tallies = team_results_by_season(team_id)
-    season_tallies.reduce({}) do |acc, (season, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[season] = win_percentage
-      acc
-    end
+    # season_tallies = team_results_by_season(team_id)
+    # season_tallies.reduce({}) do |acc, (season, tally_hash)|
+    #   win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
+    #   acc[season] = win_percentage
+    #   acc
+    # end
+    team_results_by_season(team_id).transform_values do |tally_hash|
+      tally_hash[:won].fdiv(tally_hash.values.sum)
+    end 
   end
 
 end
