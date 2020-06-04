@@ -18,13 +18,13 @@ class StatTrackerTest < Minitest::Test
     @stat_tracker = StatTracker.from_csv(locations)
 
     # TEAM STATS SETUP---------------
-    locations = {
+    teamstats_locations = {
       games: './fixtures/games_teamstats_fixture.csv',
       teams: './fixtures/teams_teamstats_fixture.csv',
       game_teams: './fixtures/game_teams_teamstats_fixture.csv'
     }
 
-    @team_stat_tracker = StatTracker.from_csv(locations)
+    @team_stat_tracker = StatTracker.from_csv(teamstats_locations)
   end
 
   def test_it_exists
