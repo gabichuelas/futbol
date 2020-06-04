@@ -81,11 +81,8 @@ class Statistics
   end
 
   def win_percentage_by_opponent(team_id)
-    opp_tallies = results_by_opponent(team_id)
-    opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[opponent] = win_percentage
-      acc
+    results_by_opponent(team_id).transform_values do |tally_hash|
+      tally_hash[:won].fdiv(tally_hash.values.sum)
     end
   end
 

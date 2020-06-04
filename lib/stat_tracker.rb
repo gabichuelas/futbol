@@ -218,17 +218,14 @@ class StatTracker < Statistics
   end
 
   def favorite_opponent(team_id)
-    opp_id = win_percentage_by_opponent(team_id).min_by do |opponent, win_percentage|
-      win_percentage
-    end
-    find_team_by_id(opp_id[0]).team_name
+    value = win_percentage_by_opponent(team_id).values.min
+    team_id = win_percentage_by_opponent(team_id).key(value)
+    find_team_by_id(team_id).team_name
   end
 
   def rival(team_id)
-    opp_id = win_percentage_by_opponent(team_id).max_by do |opponent, win_percentage|
-      win_percentage
-    end
-    find_team_by_id(opp_id[0]).team_name
+    value = win_percentage_by_opponent(team_id).values.max
+    team_id = win_percentage_by_opponent(team_id).key(value)
+    find_team_by_id(team_id).team_name
   end
-
 end
