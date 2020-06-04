@@ -194,15 +194,13 @@ class StatTracker < Statistics
   end
 
   def best_season(team_id)
-    win_percentage_by_season(team_id).max_by do |season, percentage|
-      percentage
-    end[0]
+    value = win_percentage_by_season(team_id).values.max
+    win_percentage_by_season(team_id).key(value)
   end
 
   def worst_season(team_id)
-    win_percentage_by_season(team_id).min_by do |season, percentage|
-      percentage
-    end[0]
+    value = win_percentage_by_season(team_id).values.min
+    win_percentage_by_season(team_id).key(value)
   end
 
   def average_win_percentage(team_id)
