@@ -1,7 +1,7 @@
 require_relative './statistics'
 
 class StatTracker < Statistics
-  
+
   def initialize(stat_tracker_params)
     super(stat_tracker_params)
   end
@@ -35,7 +35,7 @@ class StatTracker < Statistics
   end
 
   def find_all_games_total_score
-    games.map {|game| game.total_goals }.sum
+    @games.map {|game| game.total_goals }.sum
   end
 
   def average_goals_per_game
@@ -86,9 +86,7 @@ class StatTracker < Statistics
   end
 
   def find_game_teams_by_hoa(hoa)
-    @game_teams.find_all do |game_team|
-      game_team.hoa == hoa
-    end
+    @game_teams.find_all { |game_team| game_team.hoa == hoa }
   end
 
   def highest_scoring_visitor
