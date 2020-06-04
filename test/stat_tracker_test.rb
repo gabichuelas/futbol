@@ -3,6 +3,8 @@ require './lib/game'
 require './lib/team'
 require './lib/game_team'
 require './lib/stat_tracker'
+require 'mocha/minitest'
+
 
 class StatTrackerTest < Minitest::Test
   def setup
@@ -106,13 +108,9 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_get_average_goals_per_game
-    locations = {
-      games: './fixtures/games_gamestats_fixture_2.csv',
-      teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
-    }
-    stat_tracker = StatTracker.from_csv(locations)
-    assert_equal 4.47, stat_tracker.average_goals_per_game
+    @stat_tracker.stubs(:find_all_games_total_score).returns(22)
+
+    assert_equal 4.4, @stat_tracker.average_goals_per_game
   end
 
   def test_it_can_get_average_goals_by_season
@@ -367,5 +365,4 @@ class StatTrackerTest < Minitest::Test
   def test_rival_by_team
     assert_equal "FC Dallas", @team_stat_tracker.rival("3")
   end
-
 end
