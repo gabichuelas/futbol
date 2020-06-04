@@ -62,38 +62,12 @@ class StatTrackerTest < Minitest::Test
     assert_equal 3, @stat_tracker.lowest_total_score
   end
 
-  def test_find_game_teams_by_hoa_and_result
-    assert_equal 2, @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").count
-    @stat_tracker.find_game_teams_by_hoa_and_result("home", "WIN").each do |game_team|
-      assert_equal "home", game_team.hoa
-      assert_equal "WIN", game_team.result
-    end
-
-    assert_equal 1, @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").count
-    @stat_tracker.find_game_teams_by_hoa_and_result("away", "WIN").each do |game_team|
-      assert_equal "away", game_team.hoa
-      assert_equal "WIN", game_team.result
-    end
-  end
-
   def test_home_wins_percentage
-    assert_equal 0.67, @stat_tracker.percentage_home_wins
+    assert_equal 0.6, @stat_tracker.percentage_home_wins
   end
 
   def test_away_wins_percentage
-    assert_equal 0.33, @stat_tracker.percentage_visitor_wins
-  end
-
-  def test_find_tied_games
-    locations = {
-      games: './fixtures/games_gamestats_fixture.csv',
-      teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
-    }
-    stat_tracker = StatTracker.from_csv(locations)
-
-    assert_instance_of Array, stat_tracker.find_tied_games
-    assert_equal 1, stat_tracker.find_tied_games.count
+    assert_equal 0.4, @stat_tracker.percentage_visitor_wins
   end
 
   def test_percentage_ties
@@ -255,16 +229,6 @@ class StatTrackerTest < Minitest::Test
   end
 
   # SEASON STATISTICS
-
-  def test_it_can_find_season_games
-    assert_instance_of Array, @stat_tracker.season_games("20122013")
-    assert_equal 5, @stat_tracker.season_games("20122013").count
-  end
-
-  def test_it_finds_season_game_teams
-    assert_instance_of Array, @stat_tracker.season_game_teams("20122013")
-    assert_equal 5, @stat_tracker.season_games("20122013").count
-  end
 
   def test_coach_win_percentage
     expected = {

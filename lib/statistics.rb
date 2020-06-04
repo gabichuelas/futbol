@@ -17,17 +17,59 @@ class Statistics
     @game_teams ||= from_csv(game_teams_path, GameTeam)
   end
 
-  # we can add helper methods here for:
-  # find_home_wins
-  # find_visitor_wins
-  # find_tied_games
-
-  def find_team_by_id(id)
-    @teams.find { |team| team.team_id == id }
+  def game_results
+    @games.group_by { |game| game.result }
   end
 
   def games_by_season
     @games.group_by { |game| game.season }
+  end
+
+  def game_teams_from_season(season)
+    season_game_ids = games_by_season[season].map { |game| game.game_id }
+    @game_teams.find_all { |game| season_game_ids.include?(game.game_id) }
+  end
+
+  def game_teams_by_coach(season)
+    game_teams_from_season(season).group_by { |game_team| game_team.head_coach }
+  end
+
+  def coach_stats(season)
+    game_teams_by_coach(season).reduce({}) do |acc, (coach, game_teams)|
+      wins = game_teams.find_all {|game| game.result == "WIN"}.count
+      acc[coach] ||= {wins: 0, games: 0}
+      acc[coach][:wins] = wins
+      acc[coach][:games] = game_teams.count
+      acc
+    end
+  end
+
+  def coach_win_percentage(season)
+    coach_stats(season).transform_values do |stats|
+      stats[:wins].fdiv(stats[:games])
+    end
+  end
+
+  def team_goal_stats(season)
+    game_teams_from_season(season).reduce({}) do |acc, game_team|
+      acc[game_team.team_id] ||= { shots: 0, goals: 0 }
+      acc[game_team.team_id][:shots] += game_team.shots.to_i
+      acc[game_team.team_id][:goals] += game_team.goals.to_i
+      acc
+    end
+  end
+
+  def team_accuracy(season)
+    team_goal_stats(season).transform_values do |stats|
+      stats[:goals].fdiv(stats[:shots])
+    end
+  end
+
+  def team_tackles(season)
+    game_teams_from_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
   end
 
   def total_goals(games_array)
@@ -36,9 +78,20 @@ class Statistics
     end
   end
 
+  def find_team_by_id(id)
+    @teams.find { |team| team.team_id == id }
+  end
+
   def find_games_for(team_id)
     @games.find_all do |game|
       game.away_team_id == team_id || game.home_team_id == team_id
+    end
+  end
+
+  def goals_scored_by(team_id)
+    @game_teams.reduce([]) do |scores, game_team|
+      scores << game_team.goals.to_i if game_team.team_id == team_id
+      scores
     end
   end
 
@@ -66,20 +119,14 @@ class Statistics
   end
 
   def win_percentage_by_opponent(team_id)
-    opp_tallies = results_by_opponent(team_id)
-    opp_tallies.reduce({}) do |acc, (opponent, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[opponent] = win_percentage
-      acc
+    results_by_opponent(team_id).transform_values do |tally_hash|
+      tally_hash[:won].fdiv(tally_hash.values.sum)
     end
   end
 
   def win_percentage_by_team(team_id)
-    game_tallies = results_by_team(team_id)
-    game_tallies.reduce({}) do |acc, (team, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[team] = win_percentage
-      acc
+    results_by_team(team_id).transform_values do |tally_hash|
+      tally_hash[:won].fdiv(tally_hash.values.sum)
     end
   end
 
@@ -95,12 +142,8 @@ class Statistics
   end
 
   def win_percentage_by_season(team_id)
-    season_tallies = team_results_by_season(team_id)
-    season_tallies.reduce({}) do |acc, (season, tally_hash)|
-      win_percentage = tally_hash[:won].fdiv(tally_hash.values.sum)
-      acc[season] = win_percentage
-      acc
+    team_results_by_season(team_id).transform_values do |tally_hash|
+      tally_hash[:won].fdiv(tally_hash.values.sum)
     end
   end
-
 end
