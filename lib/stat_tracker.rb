@@ -210,17 +210,11 @@ class StatTracker < Statistics
   end
 
   def most_goals_scored(team_id)
-    game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals.to_i if game_team.team_id == team_id
-      scores
-    end.max
+    goals_scored_by(team_id).max
   end
 
   def fewest_goals_scored(team_id)
-    game_teams.reduce([]) do |scores, game_team|
-      scores << game_team.goals.to_i if game_team.team_id == team_id
-      scores
-    end.min
+    goals_scored_by(team_id).min
   end
 
   def favorite_opponent(team_id)

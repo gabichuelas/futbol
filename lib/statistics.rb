@@ -50,6 +50,13 @@ class Statistics
     end
   end
 
+  def goals_scored_by(team_id)
+    @game_teams.reduce([]) do |scores, game_team|
+      scores << game_team.goals.to_i if game_team.team_id == team_id
+      scores
+    end
+  end
+
   def results_by_team(team_id)
     games = find_games_for(team_id)
     games.reduce({}) do |acc, game|
