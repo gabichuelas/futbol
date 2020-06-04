@@ -1,13 +1,14 @@
 require_relative './statistics'
 
 class StatTracker < Statistics
+  
   def initialize(stat_tracker_params)
     super(stat_tracker_params)
   end
+
   def self.from_csv(stat_tracker_params)
     StatTracker.new(stat_tracker_params)
   end
-
   # GAME STATISTICS
   def highest_total_score
     games.max_by { |game| game.total_goals }.total_goals
@@ -46,7 +47,6 @@ class StatTracker < Statistics
       total_goals(games).fdiv(games.count).round(2)
     end
   end
-
   # LEAGUE STATISTICS
   def count_of_teams
     @teams.count
@@ -118,7 +118,6 @@ class StatTracker < Statistics
     team_avgs = team_averages(sorted_home_team_scores)
     find_team_by_id(team_with_lowest_average_score(team_avgs)).team_name
   end
-
   # SEASON STATISTICS
   def winningest_coach(season)
     coach_win_percentage(season).max_by { |coach, record| record }[0]
@@ -147,47 +146,6 @@ class StatTracker < Statistics
     id = team_tackles(season).min_by { |team_id, tackles| tackles }[0]
     find_team_by_id(id).team_name
   end
-
-  # season stats helper methods ------------------
-
-  def coach_stats(season)
-    game_teams_by_coach(season).reduce({}) do |acc, (coach, game_teams)|
-      wins = game_teams.find_all {|game| game.result == "WIN"}.count
-      acc[coach] ||= {wins: 0, games: 0}
-      acc[coach][:wins] = wins
-      acc[coach][:games] = game_teams.count
-      acc
-    end
-  end
-
-  def coach_win_percentage(season)
-    coach_stats(season).transform_values do |stats|
-      stats[:wins].fdiv(stats[:games])
-    end
-  end
-
-  def team_goal_stats(season)
-    game_teams_from_season(season).reduce({}) do |acc, game_team|
-      acc[game_team.team_id] ||= { shots: 0, goals: 0 }
-      acc[game_team.team_id][:shots] += game_team.shots.to_i
-      acc[game_team.team_id][:goals] += game_team.goals.to_i
-      acc
-    end
-  end
-
-  def team_accuracy(season)
-    team_goal_stats(season).transform_values do |stats|
-      stats[:goals].fdiv(stats[:shots])
-    end
-  end
-
-  def team_tackles(season)
-    game_teams_from_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
-      team_tackles[game_team.team_id] += game_team.tackles.to_i
-      team_tackles
-    end
-  end
-
   # TEAM STATISTICS
   def team_info(id)
     find_team_by_id(id).info

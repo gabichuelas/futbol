@@ -34,6 +34,44 @@ class Statistics
     game_teams_from_season(season).group_by { |game_team| game_team.head_coach }
   end
 
+  def coach_stats(season)
+    game_teams_by_coach(season).reduce({}) do |acc, (coach, game_teams)|
+      wins = game_teams.find_all {|game| game.result == "WIN"}.count
+      acc[coach] ||= {wins: 0, games: 0}
+      acc[coach][:wins] = wins
+      acc[coach][:games] = game_teams.count
+      acc
+    end
+  end
+
+  def coach_win_percentage(season)
+    coach_stats(season).transform_values do |stats|
+      stats[:wins].fdiv(stats[:games])
+    end
+  end
+
+  def team_goal_stats(season)
+    game_teams_from_season(season).reduce({}) do |acc, game_team|
+      acc[game_team.team_id] ||= { shots: 0, goals: 0 }
+      acc[game_team.team_id][:shots] += game_team.shots.to_i
+      acc[game_team.team_id][:goals] += game_team.goals.to_i
+      acc
+    end
+  end
+
+  def team_accuracy(season)
+    team_goal_stats(season).transform_values do |stats|
+      stats[:goals].fdiv(stats[:shots])
+    end
+  end
+
+  def team_tackles(season)
+    game_teams_from_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
+      team_tackles[game_team.team_id] += game_team.tackles.to_i
+      team_tackles
+    end
+  end
+
   def total_goals(games_array)
     games_array.reduce(0) do |goals, game|
       goals += game.total_goals
@@ -108,5 +146,4 @@ class Statistics
       tally_hash[:won].fdiv(tally_hash.values.sum)
     end
   end
-
 end
