@@ -48,7 +48,6 @@ class StatTracker < Statistics
   end
 
   # LEAGUE STATISTICS
-
   def count_of_teams
     @teams.count
   end
@@ -162,10 +161,9 @@ class StatTracker < Statistics
   end
 
   def coach_win_percentage(season)
-    coach_stats(season).reduce({}) do |acc, (coach, stats)|
-      acc[coach] = stats[:wins].fdiv(stats[:games])
-      acc
-    end
+    coach_stats(season).transform_values do |stats|
+      stats[:wins].fdiv(stats[:games])
+    end 
   end
 
   def team_goal_stats(season)
