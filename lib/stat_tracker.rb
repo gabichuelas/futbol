@@ -167,7 +167,7 @@ class StatTracker < Statistics
   end
 
   def team_goal_stats(season)
-    game_teams_by_season(season).reduce({}) do |acc, game_team|
+    game_teams_from_season(season).reduce({}) do |acc, game_team|
       acc[game_team.team_id] ||= { shots: 0, goals: 0 }
       acc[game_team.team_id][:shots] += game_team.shots.to_i
       acc[game_team.team_id][:goals] += game_team.goals.to_i
@@ -178,11 +178,11 @@ class StatTracker < Statistics
   def team_accuracy(season)
     team_goal_stats(season).transform_values do |stats|
       stats[:goals].fdiv(stats[:shots])
-    end 
+    end
   end
 
   def team_tackles(season)
-    game_teams_by_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
+    game_teams_from_season(season).inject(Hash.new(0)) do |team_tackles, game_team|
       team_tackles[game_team.team_id] += game_team.tackles.to_i
       team_tackles
     end

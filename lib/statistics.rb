@@ -25,13 +25,13 @@ class Statistics
     @games.group_by { |game| game.season }
   end
 
-  def game_teams_by_season(season)
+  def game_teams_from_season(season)
     season_game_ids = games_by_season[season].map { |game| game.game_id }
     @game_teams.find_all { |game| season_game_ids.include?(game.game_id) }
   end
 
   def game_teams_by_coach(season)
-    game_teams_by_season(season).group_by { |game_team| game_team.head_coach }
+    game_teams_from_season(season).group_by { |game_team| game_team.head_coach }
   end
 
   def total_goals(games_array)
