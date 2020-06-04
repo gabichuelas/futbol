@@ -230,18 +230,6 @@ class StatTrackerTest < Minitest::Test
 
   # SEASON STATISTICS
 
-  def test_it_can_find_season_games
-    skip
-    assert_instance_of Array, @stat_tracker.season_games("20122013")
-    assert_equal 5, @stat_tracker.season_games("20122013").count
-  end
-
-  def test_it_finds_season_game_teams
-    skip
-    assert_instance_of Array, @stat_tracker.season_game_teams("20122013")
-    assert_equal 5, @stat_tracker.season_games("20122013").count
-  end
-
   def test_coach_win_percentage
     expected = {
       "John Tortorella" => 0.0,
