@@ -3,6 +3,8 @@ require './lib/game'
 require './lib/team'
 require './lib/game_team'
 require './lib/stat_tracker'
+require 'mocha/minitest'
+
 
 class StatTrackerTest < Minitest::Test
   def setup
@@ -18,13 +20,13 @@ class StatTrackerTest < Minitest::Test
     @stat_tracker = StatTracker.from_csv(locations)
 
     # TEAM STATS SETUP---------------
-    locations = {
+    teamstats_locations = {
       games: './fixtures/games_teamstats_fixture.csv',
       teams: './fixtures/teams_teamstats_fixture.csv',
       game_teams: './fixtures/game_teams_teamstats_fixture.csv'
     }
 
-    @team_stat_tracker = StatTracker.from_csv(locations)
+    @team_stat_tracker = StatTracker.from_csv(teamstats_locations)
   end
 
   def test_it_exists
@@ -76,6 +78,7 @@ class StatTrackerTest < Minitest::Test
       teams: './fixtures/teams_fixture.csv',
       game_teams: './fixtures/game_teams_gamestats_fixture.csv'
     }
+
     stat_tracker = StatTracker.from_csv(locations)
     assert_equal 0.04, stat_tracker.percentage_ties
   end
@@ -105,13 +108,9 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_it_can_get_average_goals_per_game
-    locations = {
-      games: './fixtures/games_gamestats_fixture_2.csv',
-      teams: './fixtures/teams_fixture.csv',
-      game_teams: './fixtures/game_teams_gamestats_fixture.csv'
-    }
-    stat_tracker = StatTracker.from_csv(locations)
-    assert_equal 4.47, stat_tracker.average_goals_per_game
+    @stat_tracker.stubs(:find_all_games_total_score).returns(22)
+
+    assert_equal 4.4, @stat_tracker.average_goals_per_game
   end
 
   def test_it_can_get_average_goals_by_season
@@ -155,13 +154,11 @@ class StatTrackerTest < Minitest::Test
   def test_it_can_return_id_of_team_with_highest_avg_score
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
     assert_equal "6", @stat_tracker.team_with_highest_average_score(average_scores)
-    # is it bad to test it this way without the full setup like the above test?
   end
 
   def test_it_can_return_id_of_team_with_lowest_avg_score
     average_scores = {"3"=>1.6666666666666667, "6"=>2.6666666666666665}
     assert_equal "3", @stat_tracker.team_with_lowest_average_score(average_scores)
-    # ^^
   end
 
   def test_it_can_identify_best_offense
@@ -255,14 +252,10 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_winningest_coach
-    game_path = './fixtures/games_fixture.csv'
-    team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-
     locations = {
-    games: game_path,
-    teams: team_path,
-    game_teams: game_teams_path
+    games: './fixtures/games_fixture.csv',
+    teams: './fixtures/teams_fixture.csv',
+    game_teams: './fixtures/game_teams_seasonstats_fixture.csv'
     }
 
     stat_tracker = StatTracker.from_csv(locations)
@@ -271,14 +264,10 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_worst_coach
-    game_path = './fixtures/games_fixture.csv'
-    team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-
     locations = {
-    games: game_path,
-    teams: team_path,
-    game_teams: game_teams_path
+    games: './fixtures/games_fixture.csv',
+    teams: './fixtures/teams_fixture.csv',
+    game_teams: './fixtures/game_teams_seasonstats_fixture.csv'
     }
 
     stat_tracker = StatTracker.from_csv(locations)
@@ -287,14 +276,10 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_most_accurate_team
-    game_path = './fixtures/games_fixture.csv'
-    team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-
     locations = {
-    games: game_path,
-    teams: team_path,
-    game_teams: game_teams_path
+    games: './fixtures/games_fixture.csv',
+    teams: './fixtures/teams_fixture.csv',
+    game_teams: './fixtures/game_teams_seasonstats_fixture.csv'
     }
 
     stat_tracker = StatTracker.from_csv(locations)
@@ -303,14 +288,10 @@ class StatTrackerTest < Minitest::Test
   end
 
   def test_least_accurate_team
-    game_path = './fixtures/games_fixture.csv'
-    team_path = './fixtures/teams_fixture.csv'
-    game_teams_path = './fixtures/game_teams_seasonstats_fixture.csv'
-
     locations = {
-    games: game_path,
-    teams: team_path,
-    game_teams: game_teams_path
+    games: './fixtures/games_fixture.csv',
+    teams: './fixtures/teams_fixture.csv',
+    game_teams: './fixtures/game_teams_seasonstats_fixture.csv'
     }
 
     stat_tracker = StatTracker.from_csv(locations)
@@ -384,5 +365,4 @@ class StatTrackerTest < Minitest::Test
   def test_rival_by_team
     assert_equal "FC Dallas", @team_stat_tracker.rival("3")
   end
-
 end
