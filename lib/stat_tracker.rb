@@ -1,29 +1,20 @@
 require_relative './statistics'
 
 class StatTracker < Statistics
-
   def initialize(stat_tracker_params)
     super(stat_tracker_params)
   end
-
   def self.from_csv(stat_tracker_params)
     StatTracker.new(stat_tracker_params)
   end
 
   # GAME STATISTICS
-
   def highest_total_score
     games.max_by { |game| game.total_goals }.total_goals
   end
 
   def lowest_total_score
     games.min_by { |game| game.total_goals }.total_goals
-  end
-
-  def find_game_teams_by_hoa_and_result(hoa, result)
-    game_teams.find_all do |game_team|
-      game_team.hoa == hoa && game_team.result == result
-    end
   end
 
   def percentage_home_wins
@@ -47,7 +38,7 @@ class StatTracker < Statistics
   end
 
   def average_goals_per_game
-    (find_all_games_total_score.fdiv(games.count)).round(2)
+    find_all_games_total_score.fdiv(@games.count).round(2)
   end
 
   def average_goals_by_season
