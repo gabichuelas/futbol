@@ -124,7 +124,6 @@ class StatTrackerTest < Minitest::Test
               "20162017" => 4.75,
               "20132014" => 4.33}
     assert_equal expected, stat_tracker.average_goals_by_season
-    require "pry"; binding.pry
   end
 
   # LEAGUE STATISTICS
