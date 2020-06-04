@@ -3,7 +3,6 @@ require './lib/game'
 require './lib/team'
 require './lib/game_team'
 require './lib/statistics'
-require './lib/readable'
 
 class StatisticsTest < Minitest::Test
   def setup
@@ -16,14 +15,10 @@ class StatisticsTest < Minitest::Test
       teams: team_path,
       game_teams: game_teams_path
     }
-    @statistics = Statistics.from_csv(locations)
+    @statistics = Statistics.new(locations)
   end
 
   def test_it_exists
     assert_instance_of Statistics, @statistics
-  end
-
-  def test_it_has
-
   end
 end
