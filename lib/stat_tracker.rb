@@ -163,7 +163,7 @@ class StatTracker < Statistics
   def coach_win_percentage(season)
     coach_stats(season).transform_values do |stats|
       stats[:wins].fdiv(stats[:games])
-    end 
+    end
   end
 
   def team_goal_stats(season)
@@ -176,10 +176,9 @@ class StatTracker < Statistics
   end
 
   def team_accuracy(season)
-    team_goal_stats(season).reduce({}) do |acc, (team_id, stats)|
-      acc[team_id] = stats[:goals].fdiv(stats[:shots])
-      acc
-    end
+    team_goal_stats(season).transform_values do |stats|
+      stats[:goals].fdiv(stats[:shots])
+    end 
   end
 
   def team_tackles(season)
