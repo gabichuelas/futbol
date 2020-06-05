@@ -57,7 +57,33 @@ class StatTrackerTest < Minitest::Test
   # GAME STATISTICS
 
   def test_highest_total_score
-    assert_equal 5, @stat_tracker.highest_total_score
+
+    #Here I avoid loading the csv data all together
+    #But I still have a real instance of StatTracker to work with
+    game_path = './fixtures/no_data_fixture.csv'
+    team_path = './fixtures/no_data_fixture.csv'
+    game_teams_path = './fixtures/no_data_fixture.csv'
+
+    locations = {
+      games: game_path,
+      teams: team_path,
+      game_teams: game_teams_path
+    }
+    stat_tracker = StatTracker.new(locations)
+    game_1 = mock('game_1')
+    game_2 = mock('game_2')
+    game_3 = mock('game_3')
+    games = [game_1, game_2, game_3]
+    games.each_with_index do |game, index|
+      game.stubs(:total_goals).returns(index)
+    end
+    stat_tracker.stubs(:games).returns(games)
+    assert_equal 2, stat_tracker.highest_total_score
+
+    #If I wanted the csv data for some reason, I could still use
+    #my game mocks
+    @stat_tracker.stubs(:games).returns(games)
+    assert_equal 2, @stat_tracker.highest_total_score
   end
 
   def test_lowest_total_score
